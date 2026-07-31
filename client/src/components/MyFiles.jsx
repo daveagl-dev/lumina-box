@@ -55,7 +55,7 @@ export default function MyFiles() {
         My Files
       </h2>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
         {folders.map((f) => (
           <div
             key={f.name}
@@ -115,7 +115,7 @@ export default function MyFiles() {
           onClick={() => setIsCreating(false)}
         >
           <div
-            className="w-80 rounded-2xl bg-white p-5 shadow-xl"
+            className="w-[calc(100%-2rem)] max-w-80 rounded-2xl bg-white p-5 shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-4 flex items-center justify-between">

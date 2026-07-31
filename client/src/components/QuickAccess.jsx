@@ -38,7 +38,7 @@ export default function QuickAccess() {
           Newest <ArrowUp size={14} />
         </button>
       </div>
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
         {items.map(({ name, size, icon: Icon, color }) => (
           <div key={name} className="rounded-2xl bg-white p-4 shadow-sm">
             <div

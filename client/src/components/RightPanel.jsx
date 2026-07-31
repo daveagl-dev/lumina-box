@@ -23,7 +23,7 @@ export default function RightPanel() {
   const centerValue = selected ? `${selected.gb} GB` : `${usedGb} GB`;
 
   return (
-    <aside className="flex h-full w-96 shrink-0 flex-col gap-4 overflow-hidden bg-white py-5 pl-6 pr-8 shadow-sm">
+    <aside className="flex w-full shrink-0 flex-col gap-4 overflow-hidden rounded-2xl bg-white p-5 shadow-sm lg:h-full lg:w-96 lg:rounded-none lg:py-5 lg:pl-6 lg:pr-8">
       <div>
         <h2 className="mb-3 text-base font-semibold text-slate-800">Storage</h2>
         <div className="relative mx-auto flex h-40 w-40 items-center justify-center">
