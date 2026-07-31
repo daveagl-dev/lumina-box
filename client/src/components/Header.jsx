@@ -1,13 +1,23 @@
-import { Search, Bell, Grid2x2, Star, Users, Clock, Trash2, Menu } from "lucide-react";
+import { useRef } from "react";
+import { Search, Bell, Grid2x2, Upload, Users, Clock, Trash2, Menu } from "lucide-react";
 
 const quickAccess = [
-  { name: "Favorites", icon: <Star size={16} />, color: "text-amber-500 bg-amber-50" },
   { name: "Shared with me", icon: <Users size={16} />, color: "text-blue-500 bg-blue-50" },
   { name: "Recent", icon: <Clock size={16} />, color: "text-emerald-500 bg-emerald-50" },
   { name: "Trash", icon: <Trash2 size={16} />, color: "text-rose-500 bg-rose-50" },
 ];
 
-export default function Header({ onMenuClick }) {
+export default function Header({ onMenuClick, onUploadFile }) {
+  const fileInputRef = useRef(null);
+
+  const handleUploadClick = () => fileInputRef.current?.click();
+
+  const handleFileChange = (event) => {
+    const file = event.target.files?.[0];
+    if (file) onUploadFile?.(file);
+    event.target.value = "";
+  };
+
   return (
     <header className="mb-4 flex flex-col gap-4 sm:mb-8 lg:flex-row lg:items-start lg:justify-between">
       <div className="flex items-start gap-3">
@@ -25,6 +35,19 @@ export default function Header({ onMenuClick }) {
             It's a good day to be organized, innit?
           </p>
           <div className="mt-3 flex flex-wrap gap-2 sm:gap-3">
+            <input
+              ref={fileInputRef}
+              type="file"
+              className="hidden"
+              onChange={handleFileChange}
+            />
+            <button
+              onClick={handleUploadClick}
+              className="group flex items-center gap-2 rounded-xl bg-gradient-to-br from-coral to-orange-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-orange-200 transition hover:shadow-md hover:shadow-orange-300 active:scale-[0.98] sm:text-base"
+            >
+              <Upload size={18} />
+              <span>Upload file</span>
+            </button>
             {quickAccess.map((q) => (
               <button
                 key={q.name}

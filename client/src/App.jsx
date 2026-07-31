@@ -26,7 +26,10 @@ function App() {
       />
 
       <main className="flex min-w-0 flex-1 flex-col gap-5 overflow-y-auto px-4 py-4 sm:px-6 sm:py-5">
-        <Header onMenuClick={() => setSidebarOpen(true)} />
+        <Header
+          onMenuClick={() => setSidebarOpen(true)}
+          onUploadFile={(file) => console.log("Selected file to upload:", file)}
+        />
         {activeView === "Shared Files" ? (
           <SharedFiles />
         ) : activeView === "Trash" ? (
