@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 
 const navItems = [
-  { label: "My Drive", icon: Monitor, active: true },
+  { label: "My Drive", icon: Monitor },
   { label: "Shared Files", icon: Users },
   { label: "Favorite", icon: Star },
   { label: "Newest Files", icon: Clock },
@@ -18,7 +18,7 @@ const navItems = [
   { label: "Settings", icon: Settings },
 ];
 
-export default function Sidebar({ isOpen, onClose }) {
+export default function Sidebar({ isOpen, onClose, activeView, onSelectView }) {
   return (
     <>
       {isOpen && (
@@ -47,11 +47,12 @@ export default function Sidebar({ isOpen, onClose }) {
           </div>
 
           <nav className="flex flex-col gap-1">
-            {navItems.map(({ label, icon: Icon, active }) => (
+            {navItems.map(({ label, icon: Icon }) => (
               <button
                 key={label}
+                onClick={() => onSelectView(label)}
                 className={`flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm transition-colors ${
-                  active
+                  activeView === label
                     ? "bg-coral text-white shadow-lg shadow-coral/30"
                     : "text-slate-400 hover:bg-white/5 hover:text-white"
                 }`}
