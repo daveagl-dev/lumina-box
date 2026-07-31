@@ -1,13 +1,13 @@
 import { useRef } from "react";
-import { Search, Bell, Grid2x2, Upload, Users, Clock, Trash2, Menu } from "lucide-react";
+import { Search, Bell, Grid2x2, Upload, Image, Clock, Trash2, Menu } from "lucide-react";
 
 const quickAccess = [
-  { name: "Shared with me", icon: <Users size={16} />, color: "text-blue-500 bg-blue-50" },
-  { name: "Recent", icon: <Clock size={16} />, color: "text-emerald-500 bg-emerald-50" },
-  { name: "Trash", icon: <Trash2 size={16} />, color: "text-rose-500 bg-rose-50" },
+  { name: "Gallery", view: "Gallery", icon: <Image size={16} />, color: "text-blue-500 bg-blue-50" },
+  { name: "Recent", view: null, icon: <Clock size={16} />, color: "text-emerald-500 bg-emerald-50" },
+  { name: "Trash", view: "Trash", icon: <Trash2 size={16} />, color: "text-rose-500 bg-rose-50" },
 ];
 
-export default function Header({ onMenuClick, onUploadFile }) {
+export default function Header({ onMenuClick, onUploadFile, onSelectView }) {
   const fileInputRef = useRef(null);
 
   const handleUploadClick = () => fileInputRef.current?.click();
@@ -51,6 +51,7 @@ export default function Header({ onMenuClick, onUploadFile }) {
             {quickAccess.map((q) => (
               <button
                 key={q.name}
+                onClick={() => q.view && onSelectView?.(q.view)}
                 className="flex items-center gap-2 rounded-xl bg-white px-3 py-2 text-xs font-medium text-slate-600 shadow-sm transition hover:bg-slate-50 sm:text-sm"
               >
                 <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md ${q.color}`}>
