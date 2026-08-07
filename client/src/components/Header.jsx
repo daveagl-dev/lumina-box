@@ -1,16 +1,14 @@
 import { useRef } from "react";
-import { Search, Bell, Grid2x2, Upload, Image, Clock, Trash2, Menu } from "lucide-react";
+import { Search, Bell, Grid2x2, Upload, Bot, Menu } from "lucide-react";
 
-const quickAccess = [
-  { name: "Gallery", view: "Gallery", icon: <Image size={16} />, color: "text-blue-500 bg-blue-50" },
-  { name: "Recent", view: null, icon: <Clock size={16} />, color: "text-emerald-500 bg-emerald-50" },
-  { name: "Trash", view: "Trash", icon: <Trash2 size={16} />, color: "text-rose-500 bg-rose-50" },
-];
-
-export default function Header({ onMenuClick, onUploadFile, onSelectView }) {
+export default function Header({ onMenuClick, onUploadFile }) {
   const fileInputRef = useRef(null);
 
   const handleUploadClick = () => fileInputRef.current?.click();
+
+  const handleAskAngela = () => {
+    window.dispatchEvent(new CustomEvent("ask-angela"));
+  };
 
   const handleFileChange = (event) => {
     const file = event.target.files?.[0];
@@ -43,23 +41,20 @@ export default function Header({ onMenuClick, onUploadFile, onSelectView }) {
             />
             <button
               onClick={handleUploadClick}
-              className="group flex items-center gap-2 rounded-xl bg-gradient-to-br from-coral to-orange-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-orange-200 transition hover:shadow-md hover:shadow-orange-300 active:scale-[0.98] sm:text-base"
+              className="group flex items-center gap-2 rounded-2xl bg-white px-4 py-2.5 text-sm font-semibold text-coral shadow-sm transition hover:shadow-md active:scale-[0.98] sm:text-base"
             >
               <Upload size={18} />
               <span>Upload file</span>
             </button>
-            {quickAccess.map((q) => (
-              <button
-                key={q.name}
-                onClick={() => q.view && onSelectView?.(q.view)}
-                className="flex items-center gap-2 rounded-xl bg-white px-3 py-2 text-xs font-medium text-slate-600 shadow-sm transition hover:bg-slate-50 sm:text-sm"
-              >
-                <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md ${q.color}`}>
-                  {q.icon}
-                </span>
-                <span className="hidden sm:inline">{q.name}</span>
-              </button>
-            ))}
+            <button
+              onClick={handleAskAngela}
+              className="group relative flex items-center gap-2 overflow-hidden rounded-xl bg-[#0b0e1a] px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-orange-300/40 transition hover:shadow-md hover:shadow-orange-300/60 active:scale-[0.98] sm:text-base"
+            >
+              <span className="pointer-events-none absolute inset-0 bg-gradient-to-r from-coral via-orange-500 to-amber-400 opacity-90 transition-opacity group-hover:opacity-100" />
+              <span className="pointer-events-none absolute inset-0 animate-pulse bg-gradient-to-r from-orange-400/0 via-white/20 to-amber-400/0" />
+              <Bot size={18} className="relative animate-pulse" />
+              <span className="relative">Ask Angela</span>
+            </button>
           </div>
         </div>
       </div>

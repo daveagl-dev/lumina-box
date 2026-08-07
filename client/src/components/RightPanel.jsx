@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FileText, Video, Image as ImageIcon, Music, MoreHorizontal, UploadCloud } from "lucide-react";
+import { FileText, Video, Image as ImageIcon, Music, MoreHorizontal } from "lucide-react";
 import AngelaChat from "./AngelaChat";
 
 const details = [
@@ -23,10 +23,10 @@ export default function RightPanel() {
   const centerValue = selected ? `${selected.gb} GB` : `${usedGb} GB`;
 
   return (
-    <aside className="flex w-full shrink-0 flex-col gap-4 overflow-hidden rounded-2xl bg-white p-5 shadow-sm lg:h-full lg:w-96 lg:rounded-none lg:py-5 lg:pl-6 lg:pr-8">
+    <aside className="flex w-full shrink-0 flex-col gap-4 overflow-hidden rounded-2xl bg-white p-5 shadow-sm lg:h-full lg:w-[28rem] lg:rounded-none lg:py-5 lg:pl-6 lg:pr-8">
       <div>
         <h2 className="mb-3 text-base font-semibold text-slate-800">Storage</h2>
-        <div className="relative mx-auto flex h-40 w-40 items-center justify-center">
+        <div className="relative mx-auto flex h-56 w-56 items-center justify-center">
           <svg viewBox="0 0 120 120" className="h-full w-full -rotate-90">
             <circle cx="60" cy="60" r="52" fill="none" stroke="#eef0f4" strokeWidth="10" />
             {details.map((detail) => {
@@ -97,11 +97,6 @@ export default function RightPanel() {
           })}
         </div>
       </div>
-
-      <button className="flex items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-coral/40 bg-coral/5 py-3 text-coral transition hover:bg-coral/10">
-        <UploadCloud size={18} />
-        <span className="text-sm font-medium">Upload Files</span>
-      </button>
 
       <AngelaChat />
     </aside>

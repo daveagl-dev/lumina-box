@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Bot, SendHorizontal } from "lucide-react";
 
 export default function AngelaChat() {
@@ -6,6 +6,16 @@ export default function AngelaChat() {
     { from: "angela", text: "Hi, I'm Angela! Need help finding a file?" },
   ]);
   const [input, setInput] = useState("");
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    const focusChat = () => {
+      inputRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      inputRef.current?.focus();
+    };
+    window.addEventListener("ask-angela", focusChat);
+    return () => window.removeEventListener("ask-angela", focusChat);
+  }, []);
 
   function sendMessage(e) {
     e.preventDefault();
@@ -47,6 +57,7 @@ export default function AngelaChat() {
         className="flex min-w-0 items-center gap-2 border-t border-slate-100 px-3 py-2"
       >
         <input
+          ref={inputRef}
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}

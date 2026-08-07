@@ -6,12 +6,14 @@ import {
   Trash2,
   Settings,
   Cloud,
+  Image,
   X,
 } from "lucide-react";
 
 const navItems = [
   { label: "My Drive", icon: Monitor },
   { label: "Shared Files", icon: Users },
+  { label: "Gallery", icon: Image },
   { label: "Favorite", icon: Star },
   { label: "Newest Files", icon: Clock },
   { label: "Trash", icon: Trash2 },
@@ -29,13 +31,13 @@ export default function Sidebar({ isOpen, onClose, activeView, onSelectView }) {
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-40 flex h-full w-64 shrink-0 -translate-x-full flex-col justify-between overflow-hidden bg-navy px-5 py-5 text-white transition-transform duration-200 lg:static lg:w-56 lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-40 flex h-full w-64 shrink-0 -translate-x-full flex-col justify-between overflow-hidden bg-navy px-5 py-5 text-white transition-transform duration-200 lg:static lg:w-64 lg:translate-x-0 ${
           isOpen ? "translate-x-0" : ""
         }`}
       >
         <div>
           <div className="mb-8 flex items-center justify-between px-1">
-            <div className="flex items-center gap-1 text-xl font-semibold">
+            <div className="flex items-center gap-1 text-2xl font-semibold">
               Lumina Box<span className="text-coral">.</span>
             </div>
             <button
