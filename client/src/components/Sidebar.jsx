@@ -12,10 +12,10 @@ import {
 
 const navItems = [
   { label: "My Drive", icon: Monitor },
-  { label: "Shared Files", icon: Users },
   { label: "Gallery", icon: Image },
-  { label: "Favorite", icon: Star },
+  { label: "Favorites", icon: Star },
   { label: "Newest Files", icon: Clock },
+  { label: "Shared Files", icon: Users },
   { label: "Trash", icon: Trash2 },
   { label: "Settings", icon: Settings },
 ];
@@ -37,9 +37,12 @@ export default function Sidebar({ isOpen, onClose, activeView, onSelectView }) {
       >
         <div>
           <div className="mb-8 flex items-center justify-between px-1">
-            <div className="flex items-center gap-1 text-2xl font-semibold">
+            <button
+              onClick={() => onSelectView("My Drive")}
+              className="flex items-center gap-1 text-2xl font-semibold text-white"
+            >
               Lumina Box<span className="text-coral">.</span>
-            </div>
+            </button>
             <button
               onClick={onClose}
               className="text-slate-400 hover:text-white lg:hidden"

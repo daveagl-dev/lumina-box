@@ -28,3 +28,13 @@ export async function getDownloadUrl(key) {
   if (!response.ok) throw new Error("Failed to get download URL");
   return response.json();
 }
+
+export async function deleteFile(key) {
+  const response = await fetch(`${API_BASE_URL}/api/files/${encodeURIComponent(key)}`, {
+    method: "DELETE",
+  });
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    throw new Error(body.error || "Failed to delete file");
+  }
+}

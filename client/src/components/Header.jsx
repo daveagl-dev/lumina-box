@@ -30,7 +30,7 @@ export default function Header({ onMenuClick, onUploadFile }) {
             Welcome, David!
           </h1>
           <p className="mt-1 text-sm text-slate-400">
-            It's a good day to be organized, innit?
+            It's a good day to be organized, rigth?
           </p>
           <div className="mt-3 flex flex-wrap gap-2 sm:gap-3">
             <input

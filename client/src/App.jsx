@@ -16,12 +16,13 @@ function App() {
   const [activeView, setActiveView] = useState("My Drive");
   const [uploadStatus, setUploadStatus] = useState(null);
   const [galleryRefreshKey, setGalleryRefreshKey] = useState(0);
+  const [isFolderOpen, setIsFolderOpen] = useState(false);
 
   const handleUploadFile = async (file) => {
-    setUploadStatus({ type: "loading", message: `Uploading ${file.name}...` });
+    setUploadStatus({ type: "loading", message: `Uploading ${file.name}...`, file, size: file.size });
     try {
       await uploadFile(file);
-      setUploadStatus({ type: "success", message: `${file.name} uploaded successfully` });
+      setUploadStatus({ type: "success", message: `${file.name} uploaded successfully`, file, size: file.size });
       setGalleryRefreshKey((k) => k + 1);
     } catch (err) {
       setUploadStatus({ type: "error", message: err.message });
@@ -46,19 +47,6 @@ function App() {
           onUploadFile={handleUploadFile}
           onSelectView={setActiveView}
         />
-        {uploadStatus && (
-          <div
-            className={`rounded-xl px-4 py-2.5 text-sm font-medium shadow-sm ${
-              uploadStatus.type === "success"
-                ? "bg-emerald-50 text-emerald-600"
-                : uploadStatus.type === "error"
-                ? "bg-rose-50 text-rose-600"
-                : "bg-white text-slate-500"
-            }`}
-          >
-            {uploadStatus.message}
-          </div>
-        )}
         {activeView === "Gallery" ? (
           <Gallery key={galleryRefreshKey} />
         ) : activeView === "Shared Files" ? (
@@ -69,18 +57,30 @@ function App() {
           <Settings />
         ) : (
           <>
-            <MyFiles />
-            <QuickAccess />
-            <RecentUploads />
+            <MyFiles onFolderOpen={setIsFolderOpen} />
+            <div
+              className={`transition-all duration-300 ease-in-out overflow-hidden ${
+                isFolderOpen ? "max-h-0 opacity-0" : "max-h-full opacity-100"
+              }`}
+            >
+              <QuickAccess />
+            </div>
+            <div
+              className={`transition-all duration-300 ease-in-out overflow-hidden ${
+                isFolderOpen ? "max-h-0 opacity-0" : "max-h-full opacity-100"
+              }`}
+            >
+              <RecentUploads />
+            </div>
           </>
         )}
         <div className="lg:hidden">
-          <RightPanel />
+          <RightPanel uploadStatus={uploadStatus} />
         </div>
       </main>
 
       <div className="hidden lg:block">
-        <RightPanel />
+        <RightPanel uploadStatus={uploadStatus} />
       </div>
     </div>
   );
