@@ -39,46 +39,71 @@ export default function SharedFiles() {
         </h2>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[560px] text-left text-sm">
-          <thead>
-            <tr className="text-xs text-slate-400">
-              <th className="pb-3 font-normal">Name</th>
-              <th className="pb-3 font-normal">Size</th>
-              <th className="pb-3 font-normal">File Format</th>
-              <th className="pb-3 font-normal">Last Modified</th>
-              <th className="pb-3 font-normal" />
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map(({ name, sharedBy, size, format, modified, icon: Icon, color }) => (
-              <tr key={name} className="border-t border-slate-100">
-                <td className="py-4">
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${color}`}
-                    >
-                      <Icon size={16} />
-                    </div>
-                    <div>
-                      <p className="font-medium text-slate-800">{name}</p>
-                      <p className="text-xs text-slate-400">Shared by {sharedBy}</p>
-                    </div>
-                  </div>
-                </td>
-                <td className="text-slate-500">{size}</td>
-                <td className="text-slate-500">{format}</td>
-                <td className="text-slate-500">{modified}</td>
-                <td>
-                  <button className="text-slate-400 hover:text-slate-600">
-                    <MoreHorizontal size={18} />
-                  </button>
-                </td>
+      <>
+        {/* Mobile Card View */}
+        <div className="grid grid-cols-1 gap-2 sm:hidden">
+          {rows.map(({ name, sharedBy, size, format, modified, icon: Icon, color }) => (
+            <div key={name} className="flex items-start justify-between rounded-lg bg-slate-50 p-3">
+              <div className="flex min-w-0 flex-1 gap-3">
+                <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${color}`}>
+                  <Icon size={14} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium text-slate-800">{name}</p>
+                  <p className="text-xs text-slate-400">Shared by {sharedBy}</p>
+                  <p className="text-xs text-slate-400">{format}</p>
+                </div>
+              </div>
+              <button className="shrink-0 ml-2 text-slate-400 hover:text-slate-600">
+                <MoreHorizontal size={16} />
+              </button>
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop Table View */}
+        <div className="hidden sm:block overflow-x-auto">
+          <table className="w-full min-w-[560px] text-left text-sm">
+            <thead>
+              <tr className="text-xs text-slate-400">
+                <th className="pb-3 font-normal">Name</th>
+                <th className="pb-3 font-normal">Size</th>
+                <th className="pb-3 font-normal">File Format</th>
+                <th className="pb-3 font-normal">Last Modified</th>
+                <th className="pb-3 font-normal" />
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {rows.map(({ name, sharedBy, size, format, modified, icon: Icon, color }) => (
+                <tr key={name} className="border-t border-slate-100">
+                  <td className="py-4">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${color}`}
+                      >
+                        <Icon size={16} />
+                      </div>
+                      <div>
+                        <p className="font-medium text-slate-800">{name}</p>
+                        <p className="text-xs text-slate-400">Shared by {sharedBy}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="text-slate-500">{size}</td>
+                  <td className="text-slate-500">{format}</td>
+                  <td className="text-slate-500">{modified}</td>
+                  <td>
+                    <button className="text-slate-400 hover:text-slate-600">
+                      <MoreHorizontal size={18} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </>
+
     </section>
   );
 }

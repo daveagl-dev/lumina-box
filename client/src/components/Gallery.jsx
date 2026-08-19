@@ -93,25 +93,25 @@ export default function Gallery() {
 
       {selectedImage && (
         <div
-          className="fixed inset-0 z-30 flex items-center justify-center bg-slate-900/70 p-4 backdrop-blur-sm"
+          className="fixed inset-0 z-30 flex items-center justify-center bg-slate-900/70 p-2 backdrop-blur-sm sm:p-4"
           onClick={() => setSelectedImage(null)}
         >
           <button
             onClick={() => setSelectedImage(null)}
-            className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20"
+            className="absolute right-2 top-2 flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20 sm:right-4 sm:top-4 sm:h-10 sm:w-10"
           >
-            <X size={20} />
+            <X size={18} className="sm:size-[20px]" />
           </button>
           <div
-            className="flex max-h-full max-w-full flex-col items-center gap-3"
+            className="flex max-h-full max-w-full flex-col items-center gap-2 sm:gap-3"
             onClick={(e) => e.stopPropagation()}
           >
             <img
               src={selectedImage.url}
               alt={selectedImage.name}
-              className="max-h-[80vh] max-w-full rounded-xl object-contain shadow-2xl"
+              className="max-h-[75vh] max-w-full rounded-lg object-contain shadow-2xl sm:max-h-[80vh] sm:rounded-xl"
             />
-            <p className="text-sm font-medium text-white">{selectedImage.name}</p>
+            <p className="text-xs text-center text-white sm:text-sm font-medium">{selectedImage.name}</p>
           </div>
         </div>
       )}

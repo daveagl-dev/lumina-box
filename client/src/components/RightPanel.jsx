@@ -104,10 +104,10 @@ export default function RightPanel({ uploadStatus }) {
   const centerValue = selected ? selected.displaySize : formatStorage(usedBytes);
 
   return (
-    <aside className="flex w-full shrink-0 flex-col gap-4 overflow-hidden rounded-2xl bg-white p-5 shadow-sm lg:h-full lg:w-[28rem] lg:rounded-none lg:py-5 lg:pl-6 lg:pr-8">
+    <aside className="flex w-full shrink-0 flex-col gap-4 overflow-hidden rounded-2xl bg-white p-4 shadow-sm sm:p-5 lg:h-full lg:w-[28rem] lg:rounded-none lg:py-5 lg:pl-6 lg:pr-8">
       <div>
         <h2 className="mb-3 text-base font-semibold text-slate-800">Storage</h2>
-        <div className="relative mx-auto flex h-56 w-56 items-center justify-center">
+        <div className="relative mx-auto flex h-40 w-40 items-center justify-center sm:h-48 sm:w-48 lg:h-56 lg:w-56">
           <svg viewBox="0 0 120 120" className="h-full w-full -rotate-90">
             <circle cx="60" cy="60" r="52" fill="none" stroke="#eef0f4" strokeWidth="10" />
             {details.filter(d => d.gb > 0).map((detail) => {
@@ -139,7 +139,7 @@ export default function RightPanel({ uploadStatus }) {
             })}
           </svg>
           <div className="absolute flex flex-col items-center">
-            <span className="text-2xl font-semibold text-slate-800">
+            <span className="text-lg font-semibold text-slate-800 sm:text-xl lg:text-2xl">
               {centerValue}
             </span>
             <span className="text-xs text-slate-400">{centerLabel}</span>
@@ -153,7 +153,7 @@ export default function RightPanel({ uploadStatus }) {
 
       <div>
         <h2 className="mb-3 text-base font-semibold text-slate-800">Details</h2>
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2 sm:gap-3">
           {details.map((detail) => {
             const { label, sub, size, icon: Icon, color } = detail;
             const isSelected = selected?.label === label;
@@ -165,16 +165,16 @@ export default function RightPanel({ uploadStatus }) {
                   isSelected ? "bg-slate-50" : ""
                 }`}
               >
-                <div className="flex items-center gap-3">
-                  <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${color}`}>
-                    <Icon size={18} />
+                <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
+                  <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg sm:h-10 sm:w-10 ${color}`}>
+                    <Icon size={16} className="sm:size-[18px]" />
                   </div>
-                  <div>
+                  <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium text-slate-800">{label}</p>
                     <p className="text-xs text-slate-400">{sub}</p>
                   </div>
                 </div>
-                <span className="text-sm text-slate-500">{size}</span>
+                <span className="shrink-0 ml-2 text-xs text-slate-500 sm:text-sm">{size}</span>
               </div>
             );
           })}

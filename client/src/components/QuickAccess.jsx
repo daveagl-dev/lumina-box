@@ -114,23 +114,23 @@ export default function QuickAccess() {
         )}
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+      <div className="grid grid-cols-2 gap-2 xs:gap-2.5 sm:grid-cols-3 md:grid-cols-4 sm:gap-3 md:gap-4">
         {quickAccess.map((file) => {
           const Icon = file.icon;
           return (
-            <div key={file.key} className="group relative rounded-2xl bg-white p-4 shadow-sm transition hover:shadow-md">
-              <div className="mb-4 flex items-center justify-between">
-                <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${file.color}`}>
-                  {React.createElement(Icon, { size: 18 })}
+            <div key={file.key} className="group relative rounded-lg bg-white p-3 shadow-sm transition hover:shadow-md sm:rounded-2xl sm:p-4">
+              <div className="mb-3 flex items-center justify-between sm:mb-4">
+                <div className={`flex h-8 w-8 items-center justify-center rounded-lg sm:h-9 sm:w-9 ${file.color}`}>
+                  {React.createElement(Icon, { size: 16 })}
                 </div>
                 <button
                   onClick={() => handleRemoveQuickAccess(file.key)}
-                  className="rounded-md p-1 text-slate-400 opacity-0 transition group-hover:opacity-100 hover:bg-slate-50 hover:text-slate-600"
+                  className="rounded-md p-0.5 text-slate-400 opacity-0 transition group-hover:opacity-100 hover:bg-slate-50 hover:text-slate-600 sm:p-1"
                 >
-                  <X size={16} />
+                  <X size={14} className="sm:size-[16px]" />
                 </button>
               </div>
-              <p className="mb-1 truncate text-sm font-medium text-slate-800">{file.name}</p>
+              <p className="mb-0.5 truncate text-xs font-medium text-slate-800 sm:mb-1 sm:text-sm">{file.name}</p>
               <p className="text-xs text-slate-400">{formatBytes(file.size)}</p>
             </div>
           );
@@ -138,25 +138,25 @@ export default function QuickAccess() {
         {quickAccess.length < 4 && (
           <button
             onClick={() => setIsSelectingQuickAccess(true)}
-            className="flex min-h-[120px] flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-slate-200 text-slate-400 transition hover:border-coral/40 hover:text-coral"
+            className="flex min-h-[100px] flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-slate-200 text-slate-400 transition hover:border-coral/40 hover:text-coral sm:min-h-[120px] sm:rounded-2xl"
           >
-            <Plus size={20} />
-            <span className="text-sm font-medium">Add file</span>
+            <Plus size={18} className="sm:size-[20px]" />
+            <span className="text-xs font-medium sm:text-sm">Add file</span>
           </button>
         )}
       </div>
 
       {isSelectingQuickAccess && (
         <div
-          className="fixed inset-0 z-20 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm"
+          className="fixed inset-0 z-20 flex items-end justify-center bg-slate-900/40 backdrop-blur-sm sm:items-center"
           onClick={() => setIsSelectingQuickAccess(false)}
         >
           <div
-            className="w-[calc(100%-2rem)] max-w-md rounded-2xl bg-white p-5 shadow-xl"
+            className="w-full rounded-t-2xl bg-white p-4 shadow-xl sm:w-[calc(100%-2rem)] sm:max-w-md sm:rounded-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-base font-semibold text-slate-800">
+              <h3 className="text-sm font-semibold text-slate-800 sm:text-base">
                 Add to Quick Access ({quickAccess.length}/4)
               </h3>
               <button

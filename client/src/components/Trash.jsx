@@ -59,56 +59,92 @@ export default function Trash() {
           <p className="text-sm">Trash is empty</p>
         </div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[560px] text-left text-sm">
-            <thead>
-              <tr className="text-xs text-slate-400">
-                <th className="pb-3 font-normal">Name</th>
-                <th className="pb-3 font-normal">Size</th>
-                <th className="pb-3 font-normal">File Format</th>
-                <th className="pb-3 font-normal">Deleted</th>
-                <th className="pb-3 font-normal" />
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map(({ name, size, format, deleted, icon: Icon, color }) => (
-                <tr key={name} className="border-t border-slate-100">
-                  <td className="py-4">
-                    <div className="flex items-center gap-3">
-                      <div
-                        className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${color}`}
-                      >
-                        <Icon size={16} />
-                      </div>
-                      <p className="font-medium text-slate-800">{name}</p>
-                    </div>
-                  </td>
-                  <td className="text-slate-500">{size}</td>
-                  <td className="text-slate-500">{format}</td>
-                  <td className="text-slate-500">{deleted}</td>
-                  <td>
-                    <div className="flex items-center justify-end gap-1">
-                      <button
-                        onClick={() => handleRestore(name)}
-                        title="Restore"
-                        className="rounded-md p-1.5 text-slate-400 hover:bg-slate-50 hover:text-emerald-500"
-                      >
-                        <RotateCcw size={16} />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteForever(name)}
-                        title="Delete forever"
-                        className="rounded-md p-1.5 text-slate-400 hover:bg-slate-50 hover:text-rose-500"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  </td>
+        <>
+          {/* Mobile Card View */}
+          <div className="grid grid-cols-1 gap-2 sm:hidden">
+            {rows.map(({ name, size, format, deleted, icon: Icon, color }) => (
+              <div key={name} className="flex items-start justify-between rounded-lg bg-slate-50 p-3">
+                <div className="flex min-w-0 flex-1 gap-3">
+                  <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${color}`}>
+                    <Icon size={14} />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium text-slate-800">{name}</p>
+                    <p className="text-xs text-slate-400">{format} • {deleted}</p>
+                  </div>
+                </div>
+                <div className="flex shrink-0 ml-2 gap-1">
+                  <button
+                    onClick={() => handleRestore(name)}
+                    title="Restore"
+                    className="rounded-md p-1 text-slate-400 hover:bg-white hover:text-emerald-500"
+                  >
+                    <RotateCcw size={14} />
+                  </button>
+                  <button
+                    onClick={() => handleDeleteForever(name)}
+                    title="Delete forever"
+                    className="rounded-md p-1 text-slate-400 hover:bg-white hover:text-rose-500"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop Table View */}
+          <div className="hidden sm:block overflow-x-auto">
+            <table className="w-full min-w-[560px] text-left text-sm">
+              <thead>
+                <tr className="text-xs text-slate-400">
+                  <th className="pb-3 font-normal">Name</th>
+                  <th className="pb-3 font-normal">Size</th>
+                  <th className="pb-3 font-normal">File Format</th>
+                  <th className="pb-3 font-normal">Deleted</th>
+                  <th className="pb-3 font-normal" />
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {rows.map(({ name, size, format, deleted, icon: Icon, color }) => (
+                  <tr key={name} className="border-t border-slate-100">
+                    <td className="py-4">
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${color}`}
+                        >
+                          <Icon size={16} />
+                        </div>
+                        <p className="font-medium text-slate-800">{name}</p>
+                      </div>
+                    </td>
+                    <td className="text-slate-500">{size}</td>
+                    <td className="text-slate-500">{format}</td>
+                    <td className="text-slate-500">{deleted}</td>
+                    <td>
+                      <div className="flex items-center justify-end gap-1">
+                        <button
+                          onClick={() => handleRestore(name)}
+                          title="Restore"
+                          className="rounded-md p-1.5 text-slate-400 hover:bg-slate-50 hover:text-emerald-500"
+                        >
+                          <RotateCcw size={16} />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteForever(name)}
+                          title="Delete forever"
+                          className="rounded-md p-1.5 text-slate-400 hover:bg-slate-50 hover:text-rose-500"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
     </section>
   );

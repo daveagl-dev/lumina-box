@@ -17,6 +17,7 @@ function App() {
   const [uploadStatus, setUploadStatus] = useState(null);
   const [galleryRefreshKey, setGalleryRefreshKey] = useState(0);
   const [isFolderOpen, setIsFolderOpen] = useState(false);
+  const [profile_picture, setProfilePicture] = useState(null);
 
   const handleUploadFile = async (file) => {
     setUploadStatus({ type: "loading", message: `Uploading ${file.name}...`, file, size: file.size });
@@ -41,11 +42,12 @@ function App() {
         }}
       />
 
-      <main className="flex min-w-0 flex-1 flex-col gap-5 overflow-y-auto px-4 py-4 sm:px-6 sm:py-5">
+      <main className="flex min-w-0 flex-1 flex-col gap-3 overflow-y-auto px-3 py-3 sm:gap-4 sm:px-5 sm:py-4 md:gap-5 md:px-6 md:py-5">
         <Header
           onMenuClick={() => setSidebarOpen(true)}
           onUploadFile={handleUploadFile}
           onSelectView={setActiveView}
+          profile_picture={profile_picture}
         />
         {activeView === "Gallery" ? (
           <Gallery key={galleryRefreshKey} />
