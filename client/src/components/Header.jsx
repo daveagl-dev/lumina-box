@@ -1,7 +1,8 @@
 import { useRef } from "react";
-import { Search, Bell, Grid2x2, Upload, Bot, Menu } from "lucide-react";
+import { Search, Bell, Grid2x2, Upload, Bot, Menu, LogOut } from "lucide-react";
+import Avatar from "./Avatar";
 
-export default function Header({ onMenuClick, onUploadFile, profile_picture }) {
+export default function Header({ onMenuClick, onUploadFile, avatarUrl, onLogout, userName }) {
   const fileInputRef = useRef(null);
 
   const handleUploadClick = () => fileInputRef.current?.click();
@@ -27,7 +28,7 @@ export default function Header({ onMenuClick, onUploadFile, profile_picture }) {
         </button>
         <div className="min-w-0 flex-1">
           <h1 className="text-lg font-semibold text-slate-800 sm:text-xl md:text-2xl">
-            Welcome, David!
+            Welcome{userName ? `, ${userName.split(" ")[0]}` : ""}!
           </h1>
           <p className="mt-0.5 text-xs text-slate-400 sm:mt-1 sm:text-sm">
             It's a good day to be organized, rigth?
@@ -77,13 +78,16 @@ export default function Header({ onMenuClick, onUploadFile, profile_picture }) {
             <Grid2x2 size={16} className="md:size-[18px]" />
           </button>
           <div className="hidden items-center gap-2 sm:flex">
-            <img
-              src={profile_picture || "/profile_picture.jpg"}
-              alt="David Aguilera"
-              className="h-9 w-9 rounded-full object-cover sm:h-10 sm:w-10"
-            />
-            <span className="hidden text-xs font-medium text-slate-700 md:inline">David Aguilera</span>
+            <Avatar name={userName} avatarUrl={avatarUrl} size="sm" />
+            <span className="hidden text-xs font-medium text-slate-700 md:inline">{userName || ""}</span>
           </div>
+          <button
+            onClick={onLogout}
+            title="Log out"
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-slate-500 shadow-sm sm:h-10 sm:w-10"
+          >
+            <LogOut size={16} className="sm:size-[18px]" />
+          </button>
         </div>
       </div>
 

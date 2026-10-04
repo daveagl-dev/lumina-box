@@ -1,15 +1,39 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Globe, Bell, Lock, Moon, Camera } from "lucide-react";
+import Avatar from "./Avatar";
+import { uploadAvatar } from "../lib/auth";
 
 const languages = [
   { code: "en", label: "English" },
   { code: "es", label: "Español" },
 ];
 
-export default function Settings() {
+export default function Settings({ currentUser, onUserUpdated }) {
   const [language, setLanguage] = useState("en");
   const [notifications, setNotifications] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [avatarError, setAvatarError] = useState(null);
+  const fileInputRef = useRef(null);
+
+  const handleAvatarClick = () => fileInputRef.current?.click();
+
+  const handleAvatarChange = async (event) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+
+    setAvatarError(null);
+    setAvatarUploading(true);
+    try {
+      const updatedUser = await uploadAvatar(file);
+      onUserUpdated?.(updatedUser);
+    } catch (err) {
+      setAvatarError(err.message);
+    } finally {
+      setAvatarUploading(false);
+    }
+  };
 
   return (
     <section>
@@ -17,16 +41,27 @@ export default function Settings() {
 
       <div className="mb-4 flex flex-col items-center gap-3 rounded-2xl bg-white p-4 text-center shadow-sm sm:flex-row sm:gap-4 sm:p-5 sm:text-left">
         <div className="relative shrink-0">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-coral/10 text-xl font-semibold text-coral sm:h-20 sm:w-20 sm:text-2xl">
-            DA
-          </div>
-          <button className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-coral text-white shadow-md hover:bg-coral/90 sm:h-7 sm:w-7">
+          <Avatar name={currentUser?.name} avatarUrl={currentUser?.avatarUrl} size="lg" />
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleAvatarChange}
+          />
+          <button
+            onClick={handleAvatarClick}
+            disabled={avatarUploading}
+            className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-coral text-white shadow-md transition hover:bg-coral/90 disabled:opacity-60 sm:h-7 sm:w-7"
+          >
             <Camera size={12} className="sm:size-[13px]" />
           </button>
         </div>
         <div className="flex-1">
-          <p className="text-sm font-semibold text-slate-800 sm:text-base">David Aguilera</p>
-          <p className="text-xs text-slate-400 sm:text-sm">aguilera.davidna@gmail.com</p>
+          <p className="text-sm font-semibold text-slate-800 sm:text-base">{currentUser?.name || ""}</p>
+          <p className="text-xs text-slate-400 sm:text-sm">{currentUser?.email || ""}</p>
+          {avatarUploading && <p className="mt-1 text-xs text-slate-400">Uploading photo...</p>}
+          {avatarError && <p className="mt-1 text-xs text-red-500">{avatarError}</p>}
         </div>
         <button className="w-full rounded-lg bg-coral px-3 py-1.5 text-xs font-medium text-white transition hover:bg-coral/90 sm:w-auto sm:px-4 sm:py-2">
           Edit Profile

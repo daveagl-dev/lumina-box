@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Sidebar from "./components/Sidebar";
 import Header from "./components/Header";
 import MyFiles from "./components/MyFiles";
@@ -9,15 +9,30 @@ import Settings from "./components/Settings";
 import QuickAccess from "./components/QuickAccess";
 import RecentUploads from "./components/RecentUploads";
 import RightPanel from "./components/RightPanel";
+import Login from "./components/Login";
 import { uploadFile } from "./lib/api";
+import { getMe, getToken, logout } from "./lib/auth";
 
 function App() {
+  const [currentUser, setCurrentUser] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(!!getToken());
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeView, setActiveView] = useState("My Drive");
   const [uploadStatus, setUploadStatus] = useState(null);
   const [galleryRefreshKey, setGalleryRefreshKey] = useState(0);
   const [isFolderOpen, setIsFolderOpen] = useState(false);
-  const [profile_picture, setProfilePicture] = useState(null);
+
+  useEffect(() => {
+    if (isAuthenticated && !currentUser) {
+      getMe().then((user) => {
+        if (user) setCurrentUser(user);
+        else {
+          logout();
+          setIsAuthenticated(false);
+        }
+      });
+    }
+  }, [isAuthenticated, currentUser]);
 
   const handleUploadFile = async (file) => {
     setUploadStatus({ type: "loading", message: `Uploading ${file.name}...`, file, size: file.size });
@@ -28,6 +43,23 @@ function App() {
     } catch (err) {
       setUploadStatus({ type: "error", message: err.message });
     }
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <Login
+        onAuthenticated={(user) => {
+          setCurrentUser(user);
+          setIsAuthenticated(true);
+        }}
+      />
+    );
+  }
+
+  const handleLogout = () => {
+    logout();
+    setCurrentUser(null);
+    setIsAuthenticated(false);
   };
 
   return (
@@ -47,7 +79,9 @@ function App() {
           onMenuClick={() => setSidebarOpen(true)}
           onUploadFile={handleUploadFile}
           onSelectView={setActiveView}
-          profile_picture={profile_picture}
+          avatarUrl={currentUser?.avatarUrl}
+          onLogout={handleLogout}
+          userName={currentUser?.name}
         />
         {activeView === "Gallery" ? (
           <Gallery key={galleryRefreshKey} />
@@ -56,7 +90,7 @@ function App() {
         ) : activeView === "Trash" ? (
           <Trash />
         ) : activeView === "Settings" ? (
-          <Settings />
+          <Settings currentUser={currentUser} onUserUpdated={setCurrentUser} />
         ) : (
           <>
             <MyFiles onFolderOpen={setIsFolderOpen} />

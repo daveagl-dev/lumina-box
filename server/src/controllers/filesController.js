@@ -8,6 +8,10 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { b2Client, BUCKET_NAME } from "../config/b2Client.js";
 import { buildFileKey } from "../utils/fileKey.js";
 
+function userPrefix(userId) {
+  return `${userId}/`;
+}
+
 export async function uploadFile(req, res) {
   if (!req.file) {
     return res.status(400).json({ error: "No file provided" });
@@ -15,11 +19,12 @@ export async function uploadFile(req, res) {
 
   try {
     const key = buildFileKey(req.file.originalname);
+    const fullKey = userPrefix(req.user.id) + key;
 
     await b2Client.send(
       new PutObjectCommand({
         Bucket: BUCKET_NAME,
-        Key: key,
+        Key: fullKey,
         Body: req.file.buffer,
         ContentType: req.file.mimetype,
       })
@@ -39,12 +44,13 @@ export async function uploadFile(req, res) {
 
 export async function listFiles(req, res) {
   try {
+    const prefix = userPrefix(req.user.id);
     const result = await b2Client.send(
-      new ListObjectsV2Command({ Bucket: BUCKET_NAME })
+      new ListObjectsV2Command({ Bucket: BUCKET_NAME, Prefix: prefix })
     );
 
     const files = (result.Contents || []).map((item) => ({
-      key: item.Key,
+      key: item.Key.slice(prefix.length),
       size: item.Size,
       lastModified: item.LastModified,
     }));
@@ -58,9 +64,10 @@ export async function listFiles(req, res) {
 
 export async function getDownloadUrl(req, res) {
   const { key } = req.params;
+  const fullKey = userPrefix(req.user.id) + key;
 
   try {
-    const command = new GetObjectCommand({ Bucket: BUCKET_NAME, Key: key });
+    const command = new GetObjectCommand({ Bucket: BUCKET_NAME, Key: fullKey });
     const url = await getSignedUrl(b2Client, command, { expiresIn: 300 });
 
     res.json({ url });
@@ -72,10 +79,11 @@ export async function getDownloadUrl(req, res) {
 
 export async function deleteFile(req, res) {
   const { key } = req.params;
+  const fullKey = userPrefix(req.user.id) + key;
 
   try {
     await b2Client.send(
-      new DeleteObjectCommand({ Bucket: BUCKET_NAME, Key: key })
+      new DeleteObjectCommand({ Bucket: BUCKET_NAME, Key: fullKey })
     );
 
     res.status(204).send();

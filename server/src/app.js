@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors";
 import multer from "multer";
 import filesRoutes from "./routes/filesRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
+import { requireAuth } from "./middleware/requireAuth.js";
 
 export function createApp() {
   const app = express();
@@ -10,7 +12,8 @@ export function createApp() {
   app.use(express.json());
 
   app.get("/health", (req, res) => res.json({ status: "ok" }));
-  app.use("/api/files", filesRoutes);
+  app.use("/api/auth", authRoutes);
+  app.use("/api/files", requireAuth, filesRoutes);
 
   app.use((err, req, res, next) => {
     if (err instanceof multer.MulterError) {
