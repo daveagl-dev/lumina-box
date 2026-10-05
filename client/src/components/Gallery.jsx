@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ImageOff, Loader2, Play, Trash2, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, ImageOff, Loader2, Play, Trash2, X } from "lucide-react";
 import { listFiles, getDownloadUrl, deleteFile } from "../lib/api";
 import { useLanguage } from "../lib/i18n";
 
@@ -67,12 +67,25 @@ export default function Gallery() {
     };
   }, []);
 
+  const selectedIndex = selectedImage
+    ? images.findIndex((i) => i.key === selectedImage.key)
+    : -1;
+  const hasPrev = selectedIndex > 0;
+  const hasNext = selectedIndex >= 0 && selectedIndex < images.length - 1;
+
+  const showPrev = () => hasPrev && setSelectedImage(images[selectedIndex - 1]);
+  const showNext = () => hasNext && setSelectedImage(images[selectedIndex + 1]);
+
   useEffect(() => {
     if (!selectedImage) return;
-    const handleKeyDown = (e) => e.key === "Escape" && setSelectedImage(null);
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") setSelectedImage(null);
+      else if (e.key === "ArrowLeft") showPrev();
+      else if (e.key === "ArrowRight") showNext();
+    };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedImage]);
+  });
 
   return (
     <section>
@@ -175,12 +188,37 @@ export default function Gallery() {
             )}
             <span className="text-sm font-medium">{t("delete")}</span>
           </button>
+          {hasPrev && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                showPrev();
+              }}
+              aria-label="Previous"
+              className="absolute left-2 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/25 sm:left-4 sm:h-12 sm:w-12"
+            >
+              <ChevronLeft size={24} />
+            </button>
+          )}
+          {hasNext && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                showNext();
+              }}
+              aria-label="Next"
+              className="absolute right-2 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/25 sm:right-4 sm:h-12 sm:w-12"
+            >
+              <ChevronRight size={24} />
+            </button>
+          )}
           <div
             className="flex max-h-full max-w-full flex-col items-center gap-2 sm:gap-3"
             onClick={(e) => e.stopPropagation()}
           >
             {selectedImage.isVideo ? (
               <video
+                key={selectedImage.key}
                 src={selectedImage.url}
                 controls
                 autoPlay

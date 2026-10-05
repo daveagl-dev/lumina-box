@@ -90,10 +90,10 @@ export default function RightPanel({ uploadStatus }) {
   const centerValue = selected ? formatBytes(selected.bytes) : formatBytes(usedBytes);
 
   return (
-    <aside className="flex w-full shrink-0 flex-col gap-4 overflow-hidden rounded-2xl bg-white p-4 shadow-sm sm:p-5 lg:h-full lg:w-[28rem] lg:rounded-none lg:py-5 lg:pl-6 lg:pr-8">
+    <aside className="flex w-full shrink-0 flex-col gap-4 overflow-hidden rounded-2xl bg-white p-4 shadow-sm sm:p-5 lg:h-full lg:w-[20rem] xl:w-[22rem] 2xl:w-[28rem] lg:rounded-none lg:py-5 lg:pl-5 lg:pr-5 2xl:pl-6 2xl:pr-8">
       <div>
         <h2 className="mb-3 text-base font-semibold text-slate-800">{t("storage")}</h2>
-        <div className="relative mx-auto flex h-40 w-40 items-center justify-center sm:h-48 sm:w-48 lg:h-56 lg:w-56">
+        <div className="relative mx-auto flex h-40 w-40 items-center justify-center sm:h-48 sm:w-48 lg:h-44 lg:w-44 2xl:h-56 2xl:w-56">
           <svg viewBox="0 0 120 120" className="h-full w-full -rotate-90 drop-shadow-sm">
             <circle cx="60" cy="60" r="52" fill="none" stroke="#f1f3f8" strokeWidth="13" />
             {details.filter((d) => d.bytes > 0).map((detail) => {

@@ -3,6 +3,7 @@ import Sidebar from "./components/Sidebar";
 import Header from "./components/Header";
 import MyFiles from "./components/MyFiles";
 import Gallery from "./components/Gallery";
+import Favorites from "./components/Favorites";
 import SharedFiles from "./components/SharedFiles";
 import Trash from "./components/Trash";
 import Settings from "./components/Settings";
@@ -85,6 +86,8 @@ function App() {
         />
         {activeView === "Gallery" ? (
           <Gallery key={galleryRefreshKey} />
+        ) : activeView === "Favorites" ? (
+          <Favorites />
         ) : activeView === "Shared Files" ? (
           <SharedFiles />
         ) : activeView === "Trash" ? (

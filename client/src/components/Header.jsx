@@ -20,7 +20,7 @@ export default function Header({ onMenuClick, onUploadFile, avatarUrl, onLogout,
   };
 
   return (
-    <header className="mb-4 flex flex-col gap-3 sm:mb-6 md:mb-8 lg:flex-row lg:items-start lg:justify-between lg:gap-4">
+    <header className="mb-4 flex flex-col gap-3 sm:mb-6 md:mb-8 2xl:flex-row 2xl:items-start 2xl:justify-between 2xl:gap-4">
       <div className="flex min-w-0 flex-1 items-start gap-2 sm:gap-3">
         <button
           onClick={onMenuClick}
@@ -35,7 +35,7 @@ export default function Header({ onMenuClick, onUploadFile, avatarUrl, onLogout,
           <p className="mt-0.5 text-xs text-slate-400 sm:mt-1 sm:text-sm">
             {t("headerTagline")}
           </p>
-          <div className="mt-2 flex flex-wrap gap-2 sm:mt-3 sm:gap-3">
+          <div className="mt-2 flex items-center gap-2 sm:mt-3 sm:flex-wrap sm:gap-3">
             <input
               ref={fileInputRef}
               type="file"
@@ -58,12 +58,25 @@ export default function Header({ onMenuClick, onUploadFile, avatarUrl, onLogout,
               <span className="hidden sm:inline">{t("askAngela")}</span>
               <span className="inline sm:hidden">{t("ask")}</span>
             </button>
+            {/* Mobile only: bell and logout share the row with the action buttons */}
+            <div className="ml-auto flex shrink-0 items-center gap-2 sm:hidden">
+              <button className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-slate-500 shadow-sm">
+                <Bell size={16} />
+              </button>
+              <button
+                onClick={onLogout}
+                title={t("logOut")}
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-slate-500 shadow-sm"
+              >
+                <LogOut size={16} />
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="flex min-w-0 flex-1 items-center justify-between gap-2 sm:gap-3 lg:min-w-max lg:flex-none lg:justify-end">
-        <div className="hidden min-w-0 flex-1 items-center gap-2 rounded-xl bg-white px-3 py-2 shadow-sm sm:flex md:px-4 md:py-2.5 lg:flex-none lg:w-64">
+      <div className="hidden min-w-0 flex-1 items-center justify-between gap-2 sm:flex sm:gap-3 2xl:min-w-max 2xl:flex-none 2xl:justify-end">
+        <div className="hidden min-w-0 flex-1 items-center gap-2 rounded-xl bg-white px-3 py-2 shadow-sm sm:flex md:px-4 md:py-2.5 2xl:flex-none 2xl:w-64">
           <Search size={16} className="shrink-0 text-slate-400 md:size-[18px]" />
           <input
             type="text"
@@ -81,7 +94,7 @@ export default function Header({ onMenuClick, onUploadFile, avatarUrl, onLogout,
           </button>
           <div className="hidden items-center gap-2 sm:flex">
             <Avatar name={userName} avatarUrl={avatarUrl} size="sm" />
-            <span className="hidden text-xs font-medium text-slate-700 md:inline">{userName || ""}</span>
+            <span className="hidden text-xs font-medium text-slate-700 xl:inline">{userName || ""}</span>
           </div>
           <button
             onClick={onLogout}
