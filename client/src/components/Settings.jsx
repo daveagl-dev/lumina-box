@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { Globe, Bell, Lock, Moon, Camera } from "lucide-react";
 import Avatar from "./Avatar";
 import { uploadAvatar } from "../lib/auth";
+import { useLanguage } from "../lib/i18n";
 
 const languages = [
   { code: "en", label: "English" },
@@ -9,8 +10,8 @@ const languages = [
 ];
 
 export default function Settings({ currentUser, onUserUpdated }) {
-  const [language, setLanguage] = useState("en");
-  const [notifications, setNotifications] = useState(true);
+  const { t, tError, lang, setLang } = useLanguage();
+    const [notifications, setNotifications] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [avatarError, setAvatarError] = useState(null);
@@ -29,7 +30,7 @@ export default function Settings({ currentUser, onUserUpdated }) {
       const updatedUser = await uploadAvatar(file);
       onUserUpdated?.(updatedUser);
     } catch (err) {
-      setAvatarError(err.message);
+      setAvatarError(tError(err.message));
     } finally {
       setAvatarUploading(false);
     }
@@ -37,7 +38,7 @@ export default function Settings({ currentUser, onUserUpdated }) {
 
   return (
     <section>
-      <h2 className="mb-3 text-base font-semibold text-slate-800">Settings</h2>
+      <h2 className="mb-3 text-base font-semibold text-slate-800">{t("settingsTitle")}</h2>
 
       <div className="mb-4 flex flex-col items-center gap-3 rounded-2xl bg-white p-4 text-center shadow-sm sm:flex-row sm:gap-4 sm:p-5 sm:text-left">
         <div className="relative shrink-0">
@@ -60,11 +61,11 @@ export default function Settings({ currentUser, onUserUpdated }) {
         <div className="flex-1">
           <p className="text-sm font-semibold text-slate-800 sm:text-base">{currentUser?.name || ""}</p>
           <p className="text-xs text-slate-400 sm:text-sm">{currentUser?.email || ""}</p>
-          {avatarUploading && <p className="mt-1 text-xs text-slate-400">Uploading photo...</p>}
+          {avatarUploading && <p className="mt-1 text-xs text-slate-400">{t("uploadingPhoto")}</p>}
           {avatarError && <p className="mt-1 text-xs text-red-500">{avatarError}</p>}
         </div>
         <button className="w-full rounded-lg bg-coral px-3 py-1.5 text-xs font-medium text-white transition hover:bg-coral/90 sm:w-auto sm:px-4 sm:py-2">
-          Edit Profile
+          {t("editProfile")}
         </button>
       </div>
 
@@ -73,15 +74,15 @@ export default function Settings({ currentUser, onUserUpdated }) {
           <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-50 text-emerald-500 sm:mb-4 sm:h-10 sm:w-10 sm:rounded-xl">
             <Globe size={16} className="sm:size-[18px]" />
           </div>
-          <p className="mb-0.5 text-sm font-semibold text-slate-800 sm:mb-1">Language</p>
-          <p className="mb-3 text-xs text-slate-400 sm:mb-4">Choose your preferred language</p>
+          <p className="mb-0.5 text-sm font-semibold text-slate-800 sm:mb-1">{t("languageTitle")}</p>
+          <p className="mb-3 text-xs text-slate-400 sm:mb-4">{t("languageDesc")}</p>
           <div className="flex gap-2">
             {languages.map((l) => (
               <button
                 key={l.code}
-                onClick={() => setLanguage(l.code)}
+                onClick={() => setLang(l.code)}
                 className={`flex-1 rounded-lg border px-3 py-2 text-xs font-medium transition ${
-                  language === l.code
+                  lang === l.code
                     ? "border-coral bg-coral/10 text-coral"
                     : "border-slate-200 text-slate-500 hover:bg-slate-50"
                 }`}
@@ -98,8 +99,8 @@ export default function Settings({ currentUser, onUserUpdated }) {
           </div>
           <div className="flex items-start justify-between">
             <div>
-              <p className="mb-0.5 text-sm font-semibold text-slate-800 sm:mb-1">Notifications</p>
-              <p className="text-xs text-slate-400">Email and push alerts</p>
+              <p className="mb-0.5 text-sm font-semibold text-slate-800 sm:mb-1">{t("notifications")}</p>
+              <p className="text-xs text-slate-400">{t("notificationsDesc")}</p>
             </div>
             <button
               onClick={() => setNotifications(!notifications)}
@@ -122,8 +123,8 @@ export default function Settings({ currentUser, onUserUpdated }) {
           </div>
           <div className="flex items-start justify-between">
             <div>
-              <p className="mb-0.5 text-sm font-semibold text-slate-800 sm:mb-1">Dark Mode</p>
-              <p className="text-xs text-slate-400">Switch to a darker theme</p>
+              <p className="mb-0.5 text-sm font-semibold text-slate-800 sm:mb-1">{t("darkMode")}</p>
+              <p className="text-xs text-slate-400">{t("darkModeDesc")}</p>
             </div>
             <button
               onClick={() => setDarkMode(!darkMode)}
@@ -144,10 +145,10 @@ export default function Settings({ currentUser, onUserUpdated }) {
           <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-lg bg-rose-50 text-rose-500 sm:mb-4 sm:h-10 sm:w-10 sm:rounded-xl">
             <Lock size={16} className="sm:size-[18px]" />
           </div>
-          <p className="mb-0.5 text-sm font-semibold text-slate-800 sm:mb-1">Security</p>
-          <p className="mb-3 text-xs text-slate-400 sm:mb-4">Password and two-factor authentication</p>
+          <p className="mb-0.5 text-sm font-semibold text-slate-800 sm:mb-1">{t("security")}</p>
+          <p className="mb-3 text-xs text-slate-400 sm:mb-4">{t("securityDesc")}</p>
           <button className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50">
-            Manage
+            {t("manage")}
           </button>
         </div>
       </div>

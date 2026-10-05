@@ -1,8 +1,10 @@
 import { useRef } from "react";
 import { Search, Bell, Grid2x2, Upload, Bot, Menu, LogOut } from "lucide-react";
 import Avatar from "./Avatar";
+import { useLanguage } from "../lib/i18n";
 
 export default function Header({ onMenuClick, onUploadFile, avatarUrl, onLogout, userName }) {
+  const { t } = useLanguage();
   const fileInputRef = useRef(null);
 
   const handleUploadClick = () => fileInputRef.current?.click();
@@ -28,10 +30,10 @@ export default function Header({ onMenuClick, onUploadFile, avatarUrl, onLogout,
         </button>
         <div className="min-w-0 flex-1">
           <h1 className="text-lg font-semibold text-slate-800 sm:text-xl md:text-2xl">
-            Welcome{userName ? `, ${userName.split(" ")[0]}` : ""}!
+            {userName ? t("welcomeNamed", { name: userName.split(" ")[0] }) : t("welcome")}
           </h1>
           <p className="mt-0.5 text-xs text-slate-400 sm:mt-1 sm:text-sm">
-            It's a good day to be organized, rigth?
+            {t("headerTagline")}
           </p>
           <div className="mt-2 flex flex-wrap gap-2 sm:mt-3 sm:gap-3">
             <input
@@ -45,16 +47,16 @@ export default function Header({ onMenuClick, onUploadFile, avatarUrl, onLogout,
               className="group flex shrink-0 items-center gap-2 rounded-2xl bg-white px-3 py-2 text-xs font-semibold text-coral shadow-sm transition hover:shadow-md active:scale-[0.98] sm:px-4 sm:py-2.5 sm:text-sm md:text-base"
             >
               <Upload size={16} className="sm:size-[18px]" />
-              <span className="hidden xs:inline">Upload file</span>
-              <span className="inline xs:hidden">Upload</span>
+              <span className="hidden xs:inline">{t("uploadFile")}</span>
+              <span className="inline xs:hidden">{t("upload")}</span>
             </button>
             <button
               onClick={handleAskAngela}
               className="group flex shrink-0 items-center gap-2 rounded-lg bg-coral px-3 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-coral/90 active:scale-[0.98] sm:px-4 sm:py-2.5 sm:text-sm md:text-base"
             >
               <Bot size={16} className="sm:size-[18px]" />
-              <span className="hidden sm:inline">Ask Angela</span>
-              <span className="inline sm:hidden">Ask</span>
+              <span className="hidden sm:inline">{t("askAngela")}</span>
+              <span className="inline sm:hidden">{t("ask")}</span>
             </button>
           </div>
         </div>
@@ -65,7 +67,7 @@ export default function Header({ onMenuClick, onUploadFile, avatarUrl, onLogout,
           <Search size={16} className="shrink-0 text-slate-400 md:size-[18px]" />
           <input
             type="text"
-            placeholder="Search file"
+            placeholder={t("searchFile")}
             className="w-full min-w-0 bg-transparent text-sm text-slate-600 placeholder:text-slate-400 focus:outline-none"
           />
         </div>
@@ -83,7 +85,7 @@ export default function Header({ onMenuClick, onUploadFile, avatarUrl, onLogout,
           </div>
           <button
             onClick={onLogout}
-            title="Log out"
+            title={t("logOut")}
             className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-slate-500 shadow-sm sm:h-10 sm:w-10"
           >
             <LogOut size={16} className="sm:size-[18px]" />
@@ -96,7 +98,7 @@ export default function Header({ onMenuClick, onUploadFile, avatarUrl, onLogout,
         <Search size={16} className="shrink-0 text-slate-400" />
         <input
           type="text"
-          placeholder="Search"
+          placeholder={t("search")}
           className="w-full min-w-0 bg-transparent text-sm text-slate-600 placeholder:text-slate-400 focus:outline-none"
         />
       </div>

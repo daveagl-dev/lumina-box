@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { ImageOff, Loader2, Play, Trash2, X } from "lucide-react";
 import { listFiles, getDownloadUrl, deleteFile } from "../lib/api";
+import { useLanguage } from "../lib/i18n";
 
 const VIDEO_EXTENSIONS = /\.(mp4|webm|ogg|mov|mkv|avi)$/i;
 const MEDIA_EXTENSIONS = /\.(jpe?g|png|gif|webp|bmp|svg|mp4|webm|ogg|mov|mkv|avi)$/i;
@@ -10,20 +11,21 @@ function displayName(key) {
 }
 
 export default function Gallery() {
+  const { t } = useLanguage();
   const [images, setImages] = useState([]);
   const [status, setStatus] = useState("loading");
   const [selectedImage, setSelectedImage] = useState(null);
   const [deletingKey, setDeletingKey] = useState(null);
 
   async function handleDelete(key) {
-    if (!window.confirm("Delete this image? This cannot be undone.")) return;
+    if (!window.confirm(t("confirmDeleteImage"))) return;
     setDeletingKey(key);
     try {
       await deleteFile(key);
       setImages((prev) => prev.filter((i) => i.key !== key));
       setSelectedImage((prev) => (prev?.key === key ? null : prev));
     } catch {
-      window.alert("Failed to delete image. Please try again.");
+      window.alert(t("deleteImageFailed"));
     } finally {
       setDeletingKey(null);
     }
@@ -74,22 +76,22 @@ export default function Gallery() {
 
   return (
     <section>
-      <h2 className="mb-3 text-base font-semibold text-slate-800">Gallery</h2>
+      <h2 className="mb-3 text-base font-semibold text-slate-800">{t("nav_gallery")}</h2>
 
       {status === "loading" ? (
         <div className="flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-slate-200 py-16 text-slate-400">
           <Loader2 size={28} className="animate-spin" />
-          <p className="text-sm">Loading images...</p>
+          <p className="text-sm">{t("loadingImages")}</p>
         </div>
       ) : status === "error" ? (
         <div className="flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-rose-200 py-16 text-rose-400">
           <ImageOff size={28} />
-          <p className="text-sm">Couldn't load images. Is the server running?</p>
+          <p className="text-sm">{t("loadImagesError")}</p>
         </div>
       ) : images.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-slate-200 py-16 text-slate-400">
           <ImageOff size={28} />
-          <p className="text-sm">No images or videos uploaded yet</p>
+          <p className="text-sm">{t("noMedia")}</p>
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 sm:gap-4">
@@ -130,7 +132,7 @@ export default function Gallery() {
                   handleDelete(img.key);
                 }}
                 disabled={deletingKey === img.key}
-                aria-label={`Delete ${img.name}`}
+                aria-label={t("deleteItem", { name: img.name })}
                 className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-slate-900/60 text-white opacity-0 transition hover:bg-rose-600 group-hover:opacity-100 disabled:opacity-100"
               >
                 {deletingKey === img.key ? (
@@ -171,7 +173,7 @@ export default function Gallery() {
             ) : (
               <Trash2 size={18} />
             )}
-            <span className="text-sm font-medium">Delete</span>
+            <span className="text-sm font-medium">{t("delete")}</span>
           </button>
           <div
             className="flex max-h-full max-w-full flex-col items-center gap-2 sm:gap-3"

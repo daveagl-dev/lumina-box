@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Folder, Plus, X, MoreHorizontal, Trash2, FileText, Video, Image as ImageIcon, Music, FileCode } from "lucide-react";
 import { listFiles, deleteFile } from "../lib/api";
+import { useLanguage } from "../lib/i18n";
 
 const colorOptions = [
   { name: "Rose", barColor: "bg-rose-400", iconBg: "bg-rose-50 text-rose-500" },
@@ -14,7 +15,6 @@ const initialFolders = [
   {
     name: "All Files",
     files: 0,
-    modified: "Just now",
     barColor: "bg-rose-400",
     iconBg: "bg-rose-50 text-rose-500",
   },
@@ -46,10 +46,10 @@ function formatBytes(bytes) {
   return Math.round(bytes / Math.pow(k, i) * 100) / 100 + " " + sizes[i];
 }
 
-function formatDate(dateString) {
-  if (!dateString) return "Unknown";
+function formatDate(dateString, locale, unknown) {
+  if (!dateString) return unknown;
   const date = new Date(dateString);
-  return date.toLocaleDateString("en-US", {
+  return date.toLocaleDateString(locale, {
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -61,6 +61,7 @@ function displayName(key) {
 }
 
 export default function MyFiles({ onFolderOpen }) {
+  const { t, locale } = useLanguage();
   const [folders, setFolders] = useState(initialFolders);
   const [files, setFiles] = useState([]);
   const [isCreating, setIsCreating] = useState(false);
@@ -89,7 +90,6 @@ export default function MyFiles({ onFolderOpen }) {
           {
             name: "All Files",
             files: fileList.length,
-            modified: "Just now",
             barColor: "bg-rose-400",
             iconBg: "bg-rose-50 text-rose-500",
           },
@@ -111,7 +111,6 @@ export default function MyFiles({ onFolderOpen }) {
       {
         name: name.trim(),
         files: 0,
-        modified: "Just now",
         barColor: color.barColor,
         iconBg: color.iconBg,
         custom: true,
@@ -134,7 +133,7 @@ export default function MyFiles({ onFolderOpen }) {
       setOpenFileMenu(null);
     } catch (error) {
       console.error("Failed to delete file:", error);
-      alert("Failed to delete file");
+      alert(t("deleteFileFailed"));
     }
   };
 
@@ -142,7 +141,7 @@ export default function MyFiles({ onFolderOpen }) {
     <section>
       <div className="mb-3 flex items-center justify-between">
         <h2 className="text-base font-semibold text-slate-800">
-          My Files
+          {t("myFiles")}
         </h2>
         {selectedFolder && (
           <button
@@ -152,7 +151,7 @@ export default function MyFiles({ onFolderOpen }) {
             }}
             className="text-xs font-medium text-slate-400 hover:text-slate-600"
           >
-            Back to folders
+            {t("backToFolders")}
           </button>
         )}
       </div>
@@ -160,11 +159,11 @@ export default function MyFiles({ onFolderOpen }) {
       {selectedFolder ? (
         isLoadingFiles ? (
           <div className="flex items-center justify-center rounded-2xl bg-white p-8 shadow-sm">
-            <p className="text-slate-400">Loading files...</p>
+            <p className="text-slate-400">{t("loadingFiles")}</p>
           </div>
         ) : files.length === 0 ? (
           <div className="flex flex-col items-center justify-center rounded-2xl bg-white p-8 shadow-sm">
-            <p className="text-slate-400">No files uploaded yet</p>
+            <p className="text-slate-400">{t("noFilesYet")}</p>
           </div>
         ) : (
           <>
@@ -203,7 +202,7 @@ export default function MyFiles({ onFolderOpen }) {
                             className="flex w-full items-center gap-2 px-3 py-2 text-sm text-rose-500 hover:bg-rose-50"
                           >
                             <Trash2 size={14} />
-                            Delete
+                            {t("delete")}
                           </button>
                         </div>
                       )}
@@ -218,9 +217,9 @@ export default function MyFiles({ onFolderOpen }) {
               <table className="w-full text-left text-sm">
                 <thead>
                   <tr className="border-b border-slate-100 bg-slate-50">
-                    <th className="px-4 py-3 font-medium text-slate-600">File Name</th>
-                    <th className="px-4 py-3 font-medium text-slate-600">Size</th>
-                    <th className="px-4 py-3 font-medium text-slate-600">Upload Date</th>
+                    <th className="px-4 py-3 font-medium text-slate-600">{t("fileName")}</th>
+                    <th className="px-4 py-3 font-medium text-slate-600">{t("size")}</th>
+                    <th className="px-4 py-3 font-medium text-slate-600">{t("uploadDate")}</th>
                     <th className="px-4 py-3"></th>
                   </tr>
                 </thead>
@@ -238,7 +237,7 @@ export default function MyFiles({ onFolderOpen }) {
                           </div>
                         </td>
                         <td className="px-4 py-3 text-slate-600">{formatBytes(file.size)}</td>
-                        <td className="px-4 py-3 text-slate-600">{formatDate(file.lastModified)}</td>
+                        <td className="px-4 py-3 text-slate-600">{formatDate(file.lastModified, locale, t("unknown"))}</td>
                         <td className="px-4 py-3">
                           <div className="relative flex justify-end">
                             <button
@@ -257,7 +256,7 @@ export default function MyFiles({ onFolderOpen }) {
                                   className="flex w-full items-center gap-2 px-3 py-2 text-sm text-rose-500 hover:bg-rose-50"
                                 >
                                   <Trash2 size={14} />
-                                  Delete
+                                  {t("delete")}
                                 </button>
                               </div>
                             )}
@@ -298,10 +297,10 @@ export default function MyFiles({ onFolderOpen }) {
                   </button>
                 )}
               </div>
-              <p className="mb-0.5 text-sm font-medium text-slate-800 sm:mb-1">{f.name}</p>
+              <p className="mb-0.5 text-sm font-medium text-slate-800 sm:mb-1">{f.custom ? f.name : t("allFiles")}</p>
               <div className="flex justify-between text-xs text-slate-400">
-                <span>{f.files} files</span>
-                <span>{f.modified}</span>
+                <span>{t(f.files === 1 ? "filesCountOne" : "filesCount", { count: f.files })}</span>
+                <span>{t("justNow")}</span>
               </div>
 
               {openMenu === f.name && (
@@ -314,7 +313,7 @@ export default function MyFiles({ onFolderOpen }) {
                     className="flex w-full items-center gap-2 px-3 py-2 text-sm text-rose-500 hover:bg-rose-50"
                   >
                     <Trash2 size={14} />
-                    Delete
+                    {t("delete")}
                   </button>
                 </div>
               )}
@@ -326,7 +325,7 @@ export default function MyFiles({ onFolderOpen }) {
             className="flex min-h-[120px] flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-slate-200 text-slate-400 transition hover:border-coral/40 hover:text-coral sm:min-h-[132px] sm:rounded-2xl"
           >
             <Plus size={18} className="sm:size-[20px]" />
-            <span className="text-xs font-medium sm:text-sm">New Folder</span>
+            <span className="text-xs font-medium sm:text-sm">{t("newFolder")}</span>
           </button>
         </div>
       )}
@@ -341,7 +340,7 @@ export default function MyFiles({ onFolderOpen }) {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-base font-semibold text-slate-800">New Folder</h3>
+              <h3 className="text-base font-semibold text-slate-800">{t("newFolder")}</h3>
               <button
                 onClick={() => setIsCreating(false)}
                 className="text-slate-400 hover:text-slate-600"
@@ -356,18 +355,18 @@ export default function MyFiles({ onFolderOpen }) {
               </div>
             </div>
 
-            <label className="mb-1 block text-xs font-medium text-slate-500">Folder name</label>
+            <label className="mb-1 block text-xs font-medium text-slate-500">{t("folderName")}</label>
             <input
               type="text"
               autoFocus
               value={name}
               onChange={(e) => setName(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleCreate()}
-              placeholder="e.g. Tax Documents"
+              placeholder={t("folderPlaceholder")}
               className="mb-4 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-coral"
             />
 
-            <label className="mb-2 block text-xs font-medium text-slate-500">Icon color</label>
+            <label className="mb-2 block text-xs font-medium text-slate-500">{t("iconColor")}</label>
             <div className="mb-5 flex gap-2">
               {colorOptions.map((c) => (
                 <button
@@ -376,7 +375,7 @@ export default function MyFiles({ onFolderOpen }) {
                   className={`h-6 w-6 rounded-full sm:h-7 sm:w-7 ${c.barColor} ${
                     color.name === c.name ? "ring-2 ring-offset-2 ring-slate-400" : ""
                   }`}
-                  aria-label={c.name}
+                  aria-label={t("color_" + c.name)}
                 />
               ))}
             </div>
@@ -385,7 +384,7 @@ export default function MyFiles({ onFolderOpen }) {
               onClick={handleCreate}
               className="w-full rounded-lg bg-coral py-2 text-sm font-medium text-white transition hover:opacity-90"
             >
-              Create
+              {t("create")}
             </button>
           </div>
         </div>

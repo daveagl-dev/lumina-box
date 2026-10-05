@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { FileText, Music, Video, Image as ImageIcon, FileCode, Plus, X } from "lucide-react";
 import { listFiles } from "../lib/api";
+import { useLanguage } from "../lib/i18n";
 
 function displayName(key) {
   return key.replace(/^[0-9a-f-]{36}-/i, "");
@@ -43,6 +44,7 @@ function formatDate(dateString) {
 }
 
 export default function QuickAccess() {
+  const { t } = useLanguage();
   const [quickAccess, setQuickAccess] = useState([]);
   const [files, setFiles] = useState([]);
   const [isSelectingQuickAccess, setIsSelectingQuickAccess] = useState(false);
@@ -103,13 +105,13 @@ export default function QuickAccess() {
   return (
     <section>
       <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-base font-semibold text-slate-800">Quick Access</h2>
+        <h2 className="text-base font-semibold text-slate-800">{t("quickAccess")}</h2>
         {quickAccess.length > 0 && quickAccess.length < 4 && (
           <button
             onClick={() => setIsSelectingQuickAccess(true)}
             className="text-xs font-medium text-coral hover:text-coral/80"
           >
-            Add files
+            {t("addFiles")}
           </button>
         )}
       </div>
@@ -141,7 +143,7 @@ export default function QuickAccess() {
             className="flex min-h-[100px] flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-slate-200 text-slate-400 transition hover:border-coral/40 hover:text-coral sm:min-h-[120px] sm:rounded-2xl"
           >
             <Plus size={18} className="sm:size-[20px]" />
-            <span className="text-xs font-medium sm:text-sm">Add file</span>
+            <span className="text-xs font-medium sm:text-sm">{t("addFile")}</span>
           </button>
         )}
       </div>
@@ -157,7 +159,7 @@ export default function QuickAccess() {
           >
             <div className="mb-4 flex items-center justify-between">
               <h3 className="text-sm font-semibold text-slate-800 sm:text-base">
-                Add to Quick Access ({quickAccess.length}/4)
+                {t("addToQuickAccess", { count: quickAccess.length })}
               </h3>
               <button
                 onClick={() => setIsSelectingQuickAccess(false)}
@@ -169,7 +171,7 @@ export default function QuickAccess() {
 
             <div className="max-h-96 overflow-y-auto">
               {files.filter((f) => !quickAccess.find((qa) => qa.key === f.key)).length === 0 ? (
-                <p className="py-8 text-center text-sm text-slate-400">No files available</p>
+                <p className="py-8 text-center text-sm text-slate-400">{t("noFilesAvailable")}</p>
               ) : (
                 <div className="space-y-2">
                   {files

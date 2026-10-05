@@ -35,10 +35,10 @@ function App() {
   }, [isAuthenticated, currentUser]);
 
   const handleUploadFile = async (file) => {
-    setUploadStatus({ type: "loading", message: `Uploading ${file.name}...`, file, size: file.size });
+    setUploadStatus({ type: "loading", name: file.name, file, size: file.size });
     try {
       await uploadFile(file);
-      setUploadStatus({ type: "success", message: `${file.name} uploaded successfully`, file, size: file.size });
+      setUploadStatus({ type: "success", name: file.name, file, size: file.size });
       setGalleryRefreshKey((k) => k + 1);
     } catch (err) {
       setUploadStatus({ type: "error", message: err.message });

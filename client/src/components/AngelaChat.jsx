@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { Bot, SendHorizontal } from "lucide-react";
+import { useLanguage } from "../lib/i18n";
 
 export default function AngelaChat() {
-  const [messages, setMessages] = useState([
-    { from: "angela", text: "Hi, I'm Angela! Need help finding a file?" },
-  ]);
+  const { t } = useLanguage();
+  const [messages, setMessages] = useState([{ from: "angela", textKey: "angelaGreeting" }]);
   const [input, setInput] = useState("");
   const inputRef = useRef(null);
 
@@ -33,7 +33,7 @@ export default function AngelaChat() {
         </div>
         <div>
           <p className="text-sm font-medium text-slate-800">Angela</p>
-          <p className="text-[11px] text-emerald-500">● Online</p>
+          <p className="text-[11px] text-emerald-500">● {t("online")}</p>
         </div>
       </div>
 
@@ -47,7 +47,7 @@ export default function AngelaChat() {
                 : "self-end bg-coral text-white"
             }`}
           >
-            {m.text}
+            {m.textKey ? t(m.textKey) : m.text}
           </div>
         ))}
       </div>
@@ -61,7 +61,7 @@ export default function AngelaChat() {
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Ask Angela..."
+          placeholder={t("askAngelaPlaceholder")}
           className="min-w-0 flex-1 bg-transparent px-1 text-xs text-slate-600 placeholder:text-slate-400 focus:outline-none"
         />
         <button

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { FileText, Video, Music, Image as ImageIcon, MoreHorizontal, FileCode } from "lucide-react";
 import { listFiles } from "../lib/api";
+import { useLanguage } from "../lib/i18n";
 
 function getFileIcon(filename) {
   const ext = filename.toLowerCase().split(".").pop();
@@ -32,12 +33,12 @@ function displayName(key) {
   return key.replace(/^[0-9a-f-]{36}-/i, "");
 }
 
-function getFileFormat(filename) {
-  const ext = filename.toLowerCase().split(".").pop().toUpperCase();
-  return ext + " file";
+function getFileExt(filename) {
+  return filename.toLowerCase().split(".").pop().toUpperCase();
 }
 
 export default function RecentUploads() {
+  const { t } = useLanguage();
   const [rows, setRows] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -51,8 +52,7 @@ export default function RecentUploads() {
             name,
             key: file.key,
             size: formatBytes(file.size),
-            format: getFileFormat(name),
-            modified: "Just now",
+            ext: getFileExt(name),
             icon: getFileIcon(name),
             color: getFileColor(name),
           };
@@ -72,20 +72,20 @@ export default function RecentUploads() {
     <section className="overflow-hidden rounded-2xl bg-white p-4 shadow-sm sm:p-5 lg:min-h-0 lg:flex-1">
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-base font-semibold text-slate-800">
-          Files Uploaded Recently
+          {t("recentUploads")}
         </h2>
-        <button className="text-xs font-medium text-coral">See all</button>
+        <button className="text-xs font-medium text-coral">{t("seeAll")}</button>
       </div>
 
       {isLoading ? (
-        <div className="py-8 text-center text-slate-400">Loading files...</div>
+        <div className="py-8 text-center text-slate-400">{t("loadingFiles")}</div>
       ) : rows.length === 0 ? (
-        <div className="py-8 text-center text-slate-400">No files uploaded yet</div>
+        <div className="py-8 text-center text-slate-400">{t("noFilesYet")}</div>
       ) : (
         <>
           {/* Mobile Card View */}
           <div className="grid grid-cols-1 gap-2 sm:hidden">
-            {rows.map(({ name, key, size, format, modified, icon: Icon, color }) => (
+            {rows.map(({ name, key, size, ext, icon: Icon, color }) => (
               <div key={key} className="flex items-center justify-between rounded-lg bg-slate-50 p-3">
                 <div className="flex min-w-0 flex-1 items-center gap-3">
                   <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${color}`}>
@@ -93,7 +93,7 @@ export default function RecentUploads() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium text-slate-800">{name}</p>
-                    <p className="text-xs text-slate-400">{format}</p>
+                    <p className="text-xs text-slate-400">{t("fileFormatValue", { ext })}</p>
                   </div>
                 </div>
                 <div className="shrink-0 ml-2 text-right">
@@ -108,15 +108,15 @@ export default function RecentUploads() {
             <table className="w-full min-w-[560px] text-left text-sm">
               <thead>
                 <tr className="text-xs text-slate-400">
-                  <th className="pb-3 font-normal">Name</th>
-                  <th className="pb-3 font-normal">Size</th>
-                  <th className="pb-3 font-normal">File Format</th>
-                  <th className="pb-3 font-normal">Last Modified</th>
+                  <th className="pb-3 font-normal">{t("name")}</th>
+                  <th className="pb-3 font-normal">{t("size")}</th>
+                  <th className="pb-3 font-normal">{t("fileFormat")}</th>
+                  <th className="pb-3 font-normal">{t("lastModified")}</th>
                   <th className="pb-3 font-normal" />
                 </tr>
               </thead>
               <tbody>
-                {rows.map(({ name, key, size, format, modified, icon: Icon, color }) => (
+                {rows.map(({ name, key, size, ext, icon: Icon, color }) => (
                   <tr key={key} className="border-t border-slate-100">
                     <td className="py-4">
                       <div className="flex items-center gap-3">
@@ -131,8 +131,8 @@ export default function RecentUploads() {
                       </div>
                     </td>
                     <td className="text-slate-500">{size}</td>
-                    <td className="text-slate-500">{format}</td>
-                    <td className="text-slate-500">{modified}</td>
+                    <td className="text-slate-500">{t("fileFormatValue", { ext })}</td>
+                    <td className="text-slate-500">{t("justNow")}</td>
                     <td>
                       <button className="text-slate-400 hover:text-slate-600">
                         <MoreHorizontal size={18} />

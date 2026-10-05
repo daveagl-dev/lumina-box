@@ -9,18 +9,20 @@ import {
   Image,
   X,
 } from "lucide-react";
+import { useLanguage } from "../lib/i18n";
 
 const navItems = [
-  { label: "My Drive", icon: Monitor },
-  { label: "Gallery", icon: Image },
-  { label: "Favorites", icon: Star },
-  { label: "Newest Files", icon: Clock },
-  { label: "Shared Files", icon: Users },
-  { label: "Trash", icon: Trash2 },
-  { label: "Settings", icon: Settings },
+  { label: "My Drive", text: "nav_myDrive", icon: Monitor },
+  { label: "Gallery", text: "nav_gallery", icon: Image },
+  { label: "Favorites", text: "nav_favorites", icon: Star },
+  { label: "Newest Files", text: "nav_newestFiles", icon: Clock },
+  { label: "Shared Files", text: "nav_sharedFiles", icon: Users },
+  { label: "Trash", text: "nav_trash", icon: Trash2 },
+  { label: "Settings", text: "nav_settings", icon: Settings },
 ];
 
 export default function Sidebar({ isOpen, onClose, activeView, onSelectView }) {
+  const { t } = useLanguage();
   return (
     <>
       {isOpen && (
@@ -52,7 +54,7 @@ export default function Sidebar({ isOpen, onClose, activeView, onSelectView }) {
           </div>
 
           <nav className="flex flex-col gap-0.5 sm:gap-1">
-            {navItems.map(({ label, icon: Icon }) => (
+            {navItems.map(({ label, text, icon: Icon }) => (
               <button
                 key={label}
                 onClick={() => onSelectView(label)}
@@ -63,7 +65,7 @@ export default function Sidebar({ isOpen, onClose, activeView, onSelectView }) {
                 }`}
               >
                 <Icon size={16} className="sm:size-[18px]" />
-                {label}
+                {t(text)}
               </button>
             ))}
           </nav>
@@ -75,14 +77,14 @@ export default function Sidebar({ isOpen, onClose, activeView, onSelectView }) {
               <Cloud size={16} className="sm:size-[18px]" />
             </div>
             <div>
-              <p className="text-xs font-medium sm:text-sm">Want more storage?</p>
+              <p className="text-xs font-medium sm:text-sm">{t("wantMoreStorage")}</p>
             </div>
           </div>
           <p className="mb-2 text-xs text-slate-400 sm:mb-3">
-            Get 500GB at $3.99/month
+            {t("storageOffer")}
           </p>
           <button className="w-full rounded-lg bg-coral py-1.5 text-xs font-medium text-white transition hover:bg-coral/90 sm:py-2">
-            Upgrade Storage
+            {t("upgradeStorage")}
           </button>
         </div>
       </aside>

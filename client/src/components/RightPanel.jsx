@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { FileText, Video, Image as ImageIcon, Volume2, MoreHorizontal } from "lucide-react";
 import FilesState from "./FilesState";
 import { listFiles } from "../lib/api";
+import { useLanguage } from "../lib/i18n";
 
 const storageTypes = {
   documents: { label: "Documents", icon: FileText, color: "text-rose-500 bg-rose-50", hex: "#f43f5e", extensions: ["pdf", "doc", "docx", "txt", "xlsx", "xls", "ppt", "pptx"] },
@@ -46,6 +47,7 @@ const totalStorageGb = 20;
 const circumference = 2 * Math.PI * 52;
 
 export default function RightPanel({ uploadStatus }) {
+  const { t } = useLanguage();
   const [selected, setSelected] = useState(null);
   const [details, setDetails] = useState([]);
   const [usedGb, setUsedGb] = useState(0);
@@ -74,8 +76,9 @@ export default function RightPanel({ uploadStatus }) {
           const gb = formatGb(stat.size);
           const displaySize = formatStorage(stat.size);
           return {
+            type,
             label: config.label,
-            sub: `${stat.count} file${stat.count !== 1 ? "s" : ""}`,
+            count: stat.count,
             size: formatBytes(stat.size),
             gb,
             displaySize,
@@ -100,13 +103,13 @@ export default function RightPanel({ uploadStatus }) {
   let offset = 0;
   const freeGb = Math.max(0, totalStorageGb - usedGb);
   const totalGb = totalStorageGb;
-  const centerLabel = selected ? selected.label : "used";
+  const centerLabel = selected ? t("type_" + selected.type) : t("usedLabel");
   const centerValue = selected ? selected.displaySize : formatStorage(usedBytes);
 
   return (
     <aside className="flex w-full shrink-0 flex-col gap-4 overflow-hidden rounded-2xl bg-white p-4 shadow-sm sm:p-5 lg:h-full lg:w-[28rem] lg:rounded-none lg:py-5 lg:pl-6 lg:pr-8">
       <div>
-        <h2 className="mb-3 text-base font-semibold text-slate-800">Storage</h2>
+        <h2 className="mb-3 text-base font-semibold text-slate-800">{t("storage")}</h2>
         <div className="relative mx-auto flex h-40 w-40 items-center justify-center sm:h-48 sm:w-48 lg:h-56 lg:w-56">
           <svg viewBox="0 0 120 120" className="h-full w-full -rotate-90">
             <circle cx="60" cy="60" r="52" fill="none" stroke="#eef0f4" strokeWidth="10" />
@@ -146,16 +149,16 @@ export default function RightPanel({ uploadStatus }) {
           </div>
         </div>
         <p className="mt-3 text-center text-xs text-slate-400">
-          <span className="font-medium text-slate-600">{formatStorage(usedBytes)}</span> used of{" "}
-          <span className="font-medium text-slate-600">{totalGb} GB</span> total
+          <span className="font-medium text-slate-600">{formatStorage(usedBytes)}</span> {t("usedOf")}{" "}
+          <span className="font-medium text-slate-600">{totalGb} GB</span> {t("totalWord")}
         </p>
       </div>
 
       <div>
-        <h2 className="mb-3 text-base font-semibold text-slate-800">Details</h2>
+        <h2 className="mb-3 text-base font-semibold text-slate-800">{t("details")}</h2>
         <div className="flex flex-col gap-2 sm:gap-3">
           {details.map((detail) => {
-            const { label, sub, size, icon: Icon, color } = detail;
+            const { type, label, count, size, icon: Icon, color } = detail;
             const isSelected = selected?.label === label;
             return (
               <div
@@ -170,8 +173,8 @@ export default function RightPanel({ uploadStatus }) {
                     <Icon size={16} className="sm:size-[18px]" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-slate-800">{label}</p>
-                    <p className="text-xs text-slate-400">{sub}</p>
+                    <p className="text-sm font-medium text-slate-800">{t("type_" + type)}</p>
+                    <p className="text-xs text-slate-400">{t(count === 1 ? "filesCountOne" : "filesCount", { count })}</p>
                   </div>
                 </div>
                 <span className="shrink-0 ml-2 text-xs text-slate-500 sm:text-sm">{size}</span>
