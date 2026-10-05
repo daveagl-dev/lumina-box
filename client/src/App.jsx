@@ -11,6 +11,7 @@ import QuickAccess from "./components/QuickAccess";
 import RecentUploads from "./components/RecentUploads";
 import RightPanel from "./components/RightPanel";
 import Login from "./components/Login";
+import AngelaChat from "./components/AngelaChat";
 import { uploadFile } from "./lib/api";
 import { getMe, getToken, logout } from "./lib/auth";
 
@@ -122,6 +123,8 @@ function App() {
       <div className="hidden lg:block">
         <RightPanel uploadStatus={uploadStatus} />
       </div>
+
+      <AngelaChat />
     </div>
   );
 }

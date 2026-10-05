@@ -59,3 +59,16 @@ export async function deleteFile(key) {
     throw new Error(body.error || "Failed to delete file");
   }
 }
+
+export async function sendChat(messages) {
+  const response = await fetch(`${API_BASE_URL}/api/chat`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify({ messages }),
+  });
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    throw new Error(body.error || "Chat failed");
+  }
+  return response.json();
+}

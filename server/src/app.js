@@ -3,6 +3,7 @@ import cors from "cors";
 import multer from "multer";
 import filesRoutes from "./routes/filesRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
+import chatRoutes from "./routes/chatRoutes.js";
 import { requireAuth } from "./middleware/requireAuth.js";
 
 export function createApp() {
@@ -14,6 +15,7 @@ export function createApp() {
   app.get("/health", (req, res) => res.json({ status: "ok" }));
   app.use("/api/auth", authRoutes);
   app.use("/api/files", requireAuth, filesRoutes);
+  app.use("/api/chat", requireAuth, chatRoutes);
 
   app.use((err, req, res, next) => {
     if (err instanceof multer.MulterError) {
