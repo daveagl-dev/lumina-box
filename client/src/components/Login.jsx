@@ -1,8 +1,77 @@
 import { useState } from "react";
-import { Mail, Lock, User, Eye, EyeOff, ArrowRight, Cloud, Shield, Zap } from "lucide-react";
+import { Mail, Lock, User, Eye, EyeOff, ArrowRight, Cloud, Shield, Zap, Languages } from "lucide-react";
 import { login, register } from "../lib/auth";
 
+const translations = {
+  en: {
+    headlineStart: "Your files,",
+    headlineAccent: "organized",
+    headlineEnd: "and always within reach.",
+    tagline:
+      "Store, share, and manage everything in one secure place — built to keep your workflow effortless.",
+    feature1: "Seamless cloud storage, anywhere you go",
+    feature2: "Private accounts, protected with encryption",
+    feature3: "Fast uploads and instant access",
+    rights: "All rights reserved.",
+    welcomeBack: "Welcome back",
+    createAccount: "Create your account",
+    loginSubtitle: "Sign in to access your files and folders.",
+    registerSubtitle: "Start storing and organizing your files today.",
+    fullName: "Full name",
+    email: "Email address",
+    password: "Password",
+    passwordHint: "Must be at least 8 characters.",
+    wait: "Please wait...",
+    signIn: "Sign in",
+    createAccountBtn: "Create account",
+    noAccount: "Don't have an account?",
+    haveAccount: "Already have an account?",
+    signUp: "Sign up",
+    switchTo: "Cambiar a español",
+  },
+  es: {
+    headlineStart: "Tus archivos,",
+    headlineAccent: "organizados",
+    headlineEnd: "y siempre al alcance.",
+    tagline:
+      "Guarda, comparte y gestiona todo en un solo lugar seguro, pensado para que tu trabajo fluya sin esfuerzo.",
+    feature1: "Almacenamiento en la nube, vayas donde vayas",
+    feature2: "Cuentas privadas, protegidas con cifrado",
+    feature3: "Subidas rápidas y acceso inmediato",
+    rights: "Todos los derechos reservados.",
+    welcomeBack: "Bienvenido de nuevo",
+    createAccount: "Crea tu cuenta",
+    loginSubtitle: "Inicia sesión para acceder a tus archivos y carpetas.",
+    registerSubtitle: "Empieza a guardar y organizar tus archivos hoy.",
+    fullName: "Nombre completo",
+    email: "Correo electrónico",
+    password: "Contraseña",
+    passwordHint: "Debe tener al menos 8 caracteres.",
+    wait: "Espera un momento...",
+    signIn: "Iniciar sesión",
+    createAccountBtn: "Crear cuenta",
+    noAccount: "¿No tienes una cuenta?",
+    haveAccount: "¿Ya tienes una cuenta?",
+    signUp: "Regístrate",
+    switchTo: "Switch to English",
+  },
+};
+
+const LANG_KEY = "lumina-language";
+
+function getInitialLang() {
+  try {
+    const saved = localStorage.getItem(LANG_KEY);
+    if (saved in translations) return saved;
+  } catch {
+    // localStorage unavailable
+  }
+  return navigator.language?.startsWith("es") ? "es" : "en";
+}
+
 function Login({ onAuthenticated }) {
+  const [lang, setLang] = useState(getInitialLang);
+  const t = translations[lang];
   const [mode, setMode] = useState("login");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -24,6 +93,16 @@ function Login({ onAuthenticated }) {
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const toggleLang = () => {
+    const next = lang === "en" ? "es" : "en";
+    setLang(next);
+    try {
+      localStorage.setItem(LANG_KEY, next);
+    } catch {
+      // localStorage unavailable
     }
   };
 
@@ -51,11 +130,10 @@ function Login({ onAuthenticated }) {
         <div className="relative flex flex-col gap-8">
           <div>
             <h1 className="text-4xl font-semibold leading-tight">
-              Your files, <span className="text-coral">organized</span> and always within reach.
+              {t.headlineStart} <span className="text-coral">{t.headlineAccent}</span> {t.headlineEnd}
             </h1>
             <p className="mt-4 max-w-md text-sm leading-relaxed text-white/60">
-              Store, share, and manage everything in one secure place — built to keep your workflow
-              effortless.
+              {t.tagline}
             </p>
           </div>
 
@@ -64,47 +142,65 @@ function Login({ onAuthenticated }) {
               <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/10">
                 <Cloud size={16} className="text-coral" />
               </span>
-              Seamless cloud storage, anywhere you go
+              {t.feature1}
             </div>
             <div className="flex items-center gap-3 text-sm text-white/80">
               <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/10">
                 <Shield size={16} className="text-coral" />
               </span>
-              Private accounts, protected with encryption
+              {t.feature2}
             </div>
             <div className="flex items-center gap-3 text-sm text-white/80">
               <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/10">
                 <Zap size={16} className="text-coral" />
               </span>
-              Fast uploads and instant access
+              {t.feature3}
             </div>
           </div>
         </div>
 
-        <p className="relative text-xs text-white/40">&copy; {new Date().getFullYear()} Lumina Box. All rights reserved.</p>
+        <p className="relative text-xs text-white/40">&copy; {new Date().getFullYear()} Lumina Box. {t.rights}</p>
       </div>
 
       {/* Right panel — form */}
-      <div className="flex w-full flex-1 items-center justify-center px-6 py-10 sm:px-10">
-        <div className="w-full max-w-sm">
-          <div className="mb-8 flex items-center gap-1 text-2xl font-semibold text-navy lg:hidden">
+      <div className="relative flex w-full flex-1 items-center justify-center overflow-hidden px-6 py-10 sm:px-10">
+        {/* Mobile-only decoration */}
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-16 overflow-hidden bg-navy lg:hidden">
+          <div
+            className="absolute inset-0 opacity-30"
+            style={{
+              backgroundImage:
+                "radial-gradient(circle at 15% 20%, #f2673e 0%, transparent 45%), radial-gradient(circle at 90% 80%, #f2673e 0%, transparent 40%)",
+            }}
+          />
+          <div className="absolute -right-6 -top-10 h-16 w-16 rounded-full border border-white/10" />
+          <div className="absolute -bottom-6 left-32 h-10 w-10 rounded-full border border-white/10" />
+          <div className="absolute left-6 top-4 flex items-center gap-1 text-2xl font-semibold text-white">
             Lumina Box<span className="text-coral">.</span>
           </div>
-
+        </div>
+        <button
+          type="button"
+          onClick={toggleLang}
+          aria-label={t.switchTo}
+          className="absolute right-4 top-4 flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-navy shadow-sm transition hover:border-coral hover:text-coral sm:right-6 sm:top-6"
+        >
+          <Languages size={15} />
+          {lang === "en" ? "ES" : "EN"}
+        </button>
+        <div className="relative mt-6 w-full max-w-sm lg:mt-0">
           <h2 className="text-2xl font-semibold text-navy">
-            {isLogin ? "Welcome back" : "Create your account"}
+            {isLogin ? t.welcomeBack : t.createAccount}
           </h2>
           <p className="mt-1.5 text-sm text-slate-500">
-            {isLogin
-              ? "Sign in to access your files and folders."
-              : "Start storing and organizing your files today."}
+            {isLogin ? t.loginSubtitle : t.registerSubtitle}
           </p>
 
           <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-4">
             {!isLogin && (
               <div>
                 <label htmlFor="name" className="mb-1.5 block text-sm font-medium text-slate-700">
-                  Full name
+                  {t.fullName}
                 </label>
                 <div className="relative">
                   <User size={17} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -124,7 +220,7 @@ function Login({ onAuthenticated }) {
 
             <div>
               <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-slate-700">
-                Email address
+                {t.email}
               </label>
               <div className="relative">
                 <Mail size={17} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -143,7 +239,7 @@ function Login({ onAuthenticated }) {
 
             <div>
               <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-slate-700">
-                Password
+                {t.password}
               </label>
               <div className="relative">
                 <Lock size={17} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -168,7 +264,7 @@ function Login({ onAuthenticated }) {
                 </button>
               </div>
               {!isLogin && (
-                <p className="mt-1.5 text-xs text-slate-400">Must be at least 8 characters.</p>
+                <p className="mt-1.5 text-xs text-slate-400">{t.passwordHint}</p>
               )}
             </div>
 
@@ -182,10 +278,10 @@ function Login({ onAuthenticated }) {
               className="group mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-coral py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-coral/90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {loading ? (
-                "Please wait..."
+                t.wait
               ) : (
                 <>
-                  {isLogin ? "Sign in" : "Create account"}
+                  {isLogin ? t.signIn : t.createAccountBtn}
                   <ArrowRight size={16} className="transition group-hover:translate-x-0.5" />
                 </>
               )}
@@ -193,9 +289,9 @@ function Login({ onAuthenticated }) {
           </form>
 
           <p className="mt-6 text-center text-sm text-slate-500">
-            {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
+            {isLogin ? t.noAccount : t.haveAccount}{" "}
             <button type="button" onClick={switchMode} className="font-semibold text-coral hover:underline">
-              {isLogin ? "Sign up" : "Sign in"}
+              {isLogin ? t.signUp : t.signIn}
             </button>
           </p>
         </div>
