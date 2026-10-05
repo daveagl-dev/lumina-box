@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { FileText, Music, Video, Image as ImageIcon, FileCode, Plus, X } from "lucide-react";
 import { listFiles } from "../lib/api";
+import { useFileViewer, isViewable } from "../lib/useFileViewer";
+import FileViewer from "./FileViewer";
 import { useLanguage } from "../lib/i18n";
 
 function displayName(key) {
@@ -47,6 +49,7 @@ export default function QuickAccess() {
   const { t } = useLanguage();
   const [quickAccess, setQuickAccess] = useState([]);
   const [files, setFiles] = useState([]);
+  const { viewer, openFile, closeViewer } = useFileViewer();
   const [isSelectingQuickAccess, setIsSelectingQuickAccess] = useState(false);
 
   useEffect(() => {
@@ -120,13 +123,20 @@ export default function QuickAccess() {
         {quickAccess.map((file) => {
           const Icon = file.icon;
           return (
-            <div key={file.key} className="group relative rounded-lg bg-white p-3 shadow-sm transition hover:shadow-md sm:rounded-2xl sm:p-4">
+            <div
+              key={file.key}
+              onClick={() => openFile(file)}
+              className={`group relative ${isViewable(file.name) ? "cursor-pointer" : ""} rounded-lg bg-white p-3 shadow-sm transition hover:shadow-md sm:rounded-2xl sm:p-4`}
+            >
               <div className="mb-3 flex items-center justify-between sm:mb-4">
                 <div className={`flex h-8 w-8 items-center justify-center rounded-lg sm:h-9 sm:w-9 ${file.color}`}>
                   {React.createElement(Icon, { size: 16 })}
                 </div>
                 <button
-                  onClick={() => handleRemoveQuickAccess(file.key)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRemoveQuickAccess(file.key);
+                  }}
                   className="rounded-md p-0.5 text-slate-400 opacity-0 transition group-hover:opacity-100 hover:bg-slate-50 hover:text-slate-600 sm:p-1"
                 >
                   <X size={14} className="sm:size-[16px]" />
@@ -200,6 +210,7 @@ export default function QuickAccess() {
           </div>
         </div>
       )}
+      <FileViewer viewer={viewer} onClose={closeViewer} />
     </section>
   );
 }

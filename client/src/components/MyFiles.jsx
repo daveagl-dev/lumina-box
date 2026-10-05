@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Folder, Plus, X, MoreHorizontal, Trash2, FileText, Video, Image as ImageIcon, Music, FileCode } from "lucide-react";
-import { listFiles, deleteFile, getTextContent, getDownloadUrl } from "../lib/api";
+import { Folder, Plus, X, Check, MoreHorizontal, Trash2, FileText, Video, Image as ImageIcon, Music, FileCode } from "lucide-react";
+import { listFiles, deleteFile } from "../lib/api";
+import { useFileViewer, isViewable } from "../lib/useFileViewer";
+import FileViewer from "./FileViewer";
 import { useLanguage } from "../lib/i18n";
 
 const colorOptions = [
@@ -19,6 +21,27 @@ const initialFolders = [
     iconBg: "bg-rose-50 text-rose-500",
   },
 ];
+
+const CUSTOM_FOLDERS_KEY = "customFolders";
+const FOLDER_FILES_KEY = "folderFiles";
+
+function loadFolderFiles() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(FOLDER_FILES_KEY));
+    return saved && typeof saved === "object" && !Array.isArray(saved) ? saved : {};
+  } catch {
+    return {};
+  }
+}
+
+function loadCustomFolders() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(CUSTOM_FOLDERS_KEY));
+    return Array.isArray(saved) ? saved : [];
+  } catch {
+    return [];
+  }
+}
 
 function getFileIcon(filename) {
   const ext = filename.toLowerCase().split(".").pop();
@@ -56,18 +79,18 @@ function formatDate(dateString, locale, unknown) {
   });
 }
 
-const isTextFile = (name) => /\.txt$/i.test(name);
-const isPdfFile = (name) => /\.pdf$/i.test(name);
-const isViewable = (name) => isTextFile(name) || isPdfFile(name);
-
 function displayName(key) {
   return key.replace(/^[0-9a-f-]{36}-/i, "");
 }
 
 export default function MyFiles({ onFolderOpen }) {
   const { t, locale } = useLanguage();
-  const [folders, setFolders] = useState(initialFolders);
+  const [folders, setFolders] = useState(() => [...initialFolders, ...loadCustomFolders()]);
   const [files, setFiles] = useState([]);
+  // Custom folder name -> keys of the files the user added to it
+  const [folderFiles, setFolderFiles] = useState(loadFolderFiles);
+  const [isAdding, setIsAdding] = useState(false);
+  const [pickedKeys, setPickedKeys] = useState([]);
   const [isCreating, setIsCreating] = useState(false);
   const [name, setName] = useState("");
   const [color, setColor] = useState(colorOptions[0]);
@@ -75,30 +98,24 @@ export default function MyFiles({ onFolderOpen }) {
   const [openFileMenu, setOpenFileMenu] = useState(null);
   const [selectedFolder, setSelectedFolder] = useState(null);
   const [isLoadingFiles, setIsLoadingFiles] = useState(false);
-  const [viewer, setViewer] = useState(null);
+  const { viewer, openFile: openTextFile, closeViewer } = useFileViewer();
 
-  const openTextFile = async (file) => {
-    if (!isViewable(file.name)) return;
-    setViewer({ name: file.name, status: "loading" });
+  // Custom folders persist until the user deletes them
+  useEffect(() => {
     try {
-      if (isPdfFile(file.name)) {
-        const { url } = await getDownloadUrl(file.key);
-        setViewer({ name: file.name, status: "ready", pdfUrl: url });
-        return;
-      }
-      const { text, truncated } = await getTextContent(file.key);
-      setViewer({ name: file.name, status: "ready", text, truncated });
+      localStorage.setItem(CUSTOM_FOLDERS_KEY, JSON.stringify(folders.filter((f) => f.custom)));
     } catch {
-      setViewer({ name: file.name, status: "error" });
+      // localStorage unavailable
     }
-  };
+  }, [folders]);
 
   useEffect(() => {
-    if (!viewer) return;
-    const onKey = (e) => e.key === "Escape" && setViewer(null);
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [viewer]);
+    try {
+      localStorage.setItem(FOLDER_FILES_KEY, JSON.stringify(folderFiles));
+    } catch {
+      // localStorage unavailable
+    }
+  }, [folderFiles]);
 
   useEffect(() => {
     async function loadFiles() {
@@ -114,14 +131,7 @@ export default function MyFiles({ onFolderOpen }) {
           color: getFileColor(f.name || displayName(f.key)),
         }));
         setFiles(fileList);
-        setFolders([
-          {
-            name: "All Files",
-            files: fileList.length,
-            barColor: "bg-rose-400",
-            iconBg: "bg-rose-50 text-rose-500",
-          },
-        ]);
+        setFolders((prev) => prev.map((f) => (f.custom ? f : { ...f, files: fileList.length })));
       } catch (error) {
         console.error("Failed to load files:", error);
       } finally {
@@ -149,8 +159,32 @@ export default function MyFiles({ onFolderOpen }) {
     setIsCreating(false);
   };
 
+  const currentFolder = folders.find((f) => f.name === selectedFolder);
+  const folderKeys = (folderName) => folderFiles[folderName] || [];
+  // Custom folders only show files added to them; "All Files" shows everything
+  const visibleFiles = currentFolder?.custom ? files.filter((f) => folderKeys(currentFolder.name).includes(f.key)) : files;
+
+  // Cloud files not yet in the open custom folder
+  const addableFiles = currentFolder?.custom ? files.filter((f) => !folderKeys(currentFolder.name).includes(f.key)) : [];
+
+  const closeAddPicker = () => {
+    setIsAdding(false);
+    setPickedKeys([]);
+  };
+
+  const togglePicked = (key) =>
+    setPickedKeys((prev) => (prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]));
+
+  const handleAddToFolder = () => {
+    if (pickedKeys.length) {
+      setFolderFiles((prev) => ({ ...prev, [currentFolder.name]: [...(prev[currentFolder.name] || []), ...pickedKeys] }));
+    }
+    closeAddPicker();
+  };
+
   const handleDelete = (folderName) => {
     setFolders(folders.filter((f) => f.name !== folderName));
+    setFolderFiles(({ [folderName]: _removed, ...rest }) => rest);
     setOpenMenu(null);
   };
 
@@ -172,15 +206,25 @@ export default function MyFiles({ onFolderOpen }) {
           {t("myFiles")}
         </h2>
         {selectedFolder && (
-          <button
-            onClick={() => {
-              setSelectedFolder(null);
-              onFolderOpen?.(false);
-            }}
-            className="text-xs font-medium text-slate-400 hover:text-slate-600"
-          >
-            {t("backToFolders")}
-          </button>
+          <div className="flex items-center gap-4">
+            {currentFolder?.custom && (
+              <button
+                onClick={() => setIsAdding(true)}
+                className="text-xs font-medium text-coral hover:underline"
+              >
+                {t("addFile")}
+              </button>
+            )}
+            <button
+              onClick={() => {
+                setSelectedFolder(null);
+                onFolderOpen?.(false);
+              }}
+              className="text-xs font-medium text-slate-400 hover:text-slate-600"
+            >
+              {t("backToFolders")}
+            </button>
+          </div>
         )}
       </div>
 
@@ -189,7 +233,7 @@ export default function MyFiles({ onFolderOpen }) {
           <div className="flex items-center justify-center rounded-2xl bg-white p-8 shadow-sm">
             <p className="text-slate-400">{t("loadingFiles")}</p>
           </div>
-        ) : files.length === 0 ? (
+        ) : visibleFiles.length === 0 ? (
           <div className="flex flex-col items-center justify-center rounded-2xl bg-white p-8 shadow-sm">
             <p className="text-slate-400">{t("noFilesYet")}</p>
           </div>
@@ -197,7 +241,7 @@ export default function MyFiles({ onFolderOpen }) {
           <>
             {/* Mobile/Tablet Card View */}
             <div className="grid grid-cols-1 gap-3 sm:hidden">
-              {files.map((file) => {
+              {visibleFiles.map((file) => {
                 const Icon = file.icon;
                 return (
                   <div
@@ -256,7 +300,7 @@ export default function MyFiles({ onFolderOpen }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {files.map((file) => {
+                  {visibleFiles.map((file) => {
                     const Icon = file.icon;
                     return (
                       <tr
@@ -311,7 +355,9 @@ export default function MyFiles({ onFolderOpen }) {
         )
       ) : (
         <div className="grid grid-cols-2 gap-2 xs:gap-2.5 sm:grid-cols-3 md:grid-cols-4 sm:gap-3 md:gap-4">
-          {folders.map((f) => (
+          {folders.map((f) => {
+            const count = f.custom ? files.filter((file) => folderKeys(f.name).includes(file.key)).length : f.files;
+            return (
             <div
               key={f.name}
               onClick={() => {
@@ -338,7 +384,7 @@ export default function MyFiles({ onFolderOpen }) {
               </div>
               <p className="mb-0.5 text-sm font-medium text-slate-800 sm:mb-1">{f.custom ? f.name : t("allFiles")}</p>
               <div className="flex justify-between text-xs text-slate-400">
-                <span>{t(f.files === 1 ? "filesCountOne" : "filesCount", { count: f.files })}</span>
+                <span>{t(count === 1 ? "filesCountOne" : "filesCount", { count })}</span>
                 <span>{t("justNow")}</span>
               </div>
 
@@ -357,7 +403,8 @@ export default function MyFiles({ onFolderOpen }) {
                 </div>
               )}
             </div>
-          ))}
+            );
+          })}
 
           <button
             onClick={() => setIsCreating(true)}
@@ -369,37 +416,65 @@ export default function MyFiles({ onFolderOpen }) {
         </div>
       )}
 
-      {viewer && (
+      <FileViewer viewer={viewer} onClose={closeViewer} />
+
+      {isAdding && (
         <div
-          className="fixed inset-0 z-30 flex items-center justify-center bg-slate-900/70 p-2 backdrop-blur-sm sm:p-4"
-          onClick={() => setViewer(null)}
+          className="fixed inset-0 z-20 flex items-end justify-center bg-slate-900/40 backdrop-blur-sm sm:items-center"
+          onClick={closeAddPicker}
         >
           <div
-            className={`flex w-full flex-col ${viewer.pdfUrl ? "h-[85vh] max-w-5xl" : "max-h-[85vh] max-w-3xl"} overflow-hidden rounded-2xl bg-white shadow-2xl`}
+            className="flex max-h-[80vh] w-full flex-col rounded-t-2xl bg-white p-4 shadow-xl sm:w-[calc(100%-2rem)] sm:max-w-md sm:rounded-2xl sm:p-5"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
-              <h3 className="truncate text-sm font-semibold text-slate-800">{viewer.name}</h3>
-              <button onClick={() => setViewer(null)} className="ml-3 text-slate-400 hover:text-slate-600">
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-base font-semibold text-slate-800">{t("addFile")}</h3>
+              <button onClick={closeAddPicker} className="text-slate-400 hover:text-slate-600">
                 <X size={18} />
               </button>
             </div>
-            <div className={`min-h-0 flex-1 ${viewer.pdfUrl ? "" : "overflow-auto p-4"}`}>
-              {viewer.status === "loading" ? (
-                <p className="text-sm text-slate-400">{t("loadingFileContent")}</p>
-              ) : viewer.status === "error" ? (
-                <p className="text-sm text-rose-500">{t("fileContentError")}</p>
-              ) : viewer.pdfUrl ? (
-                <iframe src={viewer.pdfUrl} title={viewer.name} className="h-full w-full border-0" />
-              ) : (
-                <>
-                  <pre className="whitespace-pre-wrap break-words font-mono text-sm text-slate-700">{viewer.text}</pre>
-                  {viewer.truncated && (
-                    <p className="mt-3 text-xs text-slate-400">{t("fileTruncated")}</p>
-                  )}
-                </>
-              )}
-            </div>
+
+            {addableFiles.length === 0 ? (
+              <p className="py-8 text-center text-sm text-slate-400">{t("noFilesToAdd")}</p>
+            ) : (
+              <ul className="mb-4 flex min-h-0 flex-col gap-1 overflow-y-auto">
+                {addableFiles.map((file) => {
+                  const Icon = file.icon;
+                  const picked = pickedKeys.includes(file.key);
+                  return (
+                    <li key={file.key}>
+                      <button
+                        onClick={() => togglePicked(file.key)}
+                        className={`flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left transition hover:bg-slate-50 ${picked ? "bg-slate-50" : ""}`}
+                      >
+                        <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${file.color}`}>
+                          {React.createElement(Icon, { size: 16 })}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-medium text-slate-800">{file.name}</p>
+                          <p className="text-xs text-slate-400">{formatBytes(file.size)}</p>
+                        </div>
+                        <span
+                          className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border ${
+                            picked ? "border-coral bg-coral text-white" : "border-slate-300"
+                          }`}
+                        >
+                          {picked && <Check size={14} />}
+                        </span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+
+            <button
+              onClick={handleAddToFolder}
+              disabled={pickedKeys.length === 0}
+              className="w-full rounded-lg bg-coral py-2 text-sm font-medium text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {t("addSelected")}
+            </button>
           </div>
         </div>
       )}
