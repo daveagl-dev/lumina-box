@@ -52,14 +52,6 @@ function Login({ onAuthenticated }) {
     <div className="flex h-screen w-full overflow-hidden bg-[#eef0f4]">
       {/* Left panel — brand */}
       <div className="relative hidden w-full max-w-xl flex-col justify-between overflow-hidden bg-navy px-12 py-12 text-white lg:flex">
-        <div
-          className="pointer-events-none absolute inset-0 opacity-20"
-          style={{
-            backgroundImage:
-              "radial-gradient(circle at 20% 20%, #f2673e 0%, transparent 40%), radial-gradient(circle at 80% 70%, #f2673e 0%, transparent 35%)",
-          }}
-        />
-
         <div className="relative flex items-center gap-1 text-2xl font-semibold text-white">
           Lumina Box<span className="text-coral">.</span>
         </div>
@@ -103,13 +95,6 @@ function Login({ onAuthenticated }) {
       <div className="relative flex w-full flex-1 items-center justify-center overflow-hidden px-6 py-10 sm:px-10">
         {/* Mobile-only decoration */}
         <div className="pointer-events-none absolute inset-x-0 top-0 h-16 overflow-hidden bg-navy lg:hidden">
-          <div
-            className="absolute inset-0 opacity-30"
-            style={{
-              backgroundImage:
-                "radial-gradient(circle at 15% 20%, #f2673e 0%, transparent 45%), radial-gradient(circle at 90% 80%, #f2673e 0%, transparent 40%)",
-            }}
-          />
           <div className="absolute -right-6 -top-10 h-16 w-16 rounded-full border border-white/10" />
           <div className="absolute -bottom-6 left-32 h-10 w-10 rounded-full border border-white/10" />
           <div className="absolute left-6 top-4 flex items-center gap-1 text-2xl font-semibold text-white">
