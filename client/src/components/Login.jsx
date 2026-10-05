@@ -110,7 +110,7 @@ function Login({ onAuthenticated }) {
           <Languages size={15} />
           {lang === "en" ? "ES" : "EN"}
         </button>
-        <div className="relative mt-6 w-full max-w-sm lg:mt-0">
+        <div className="relative mt-6 w-full max-w-sm lg:mt-0 2xl:[zoom:1.15]">
           <h2 className="text-2xl font-semibold text-navy">
             {isLogin ? t("welcomeBack") : t("createAccount")}
           </h2>
