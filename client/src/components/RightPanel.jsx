@@ -31,26 +31,15 @@ function formatBytes(bytes) {
   return Math.round(bytes / Math.pow(k, i) * 100) / 100 + " " + sizes[i];
 }
 
-function formatGb(bytes) {
-  return Math.round((bytes / (1024 * 1024 * 1024)) * 100) / 100;
-}
-
-function formatStorage(bytes) {
-  if (bytes < 1024 * 1024 * 1024) {
-    const mb = Math.round(bytes / (1024 * 1024) * 100) / 100;
-    return `${mb} MB`;
-  }
-  return `${formatGb(bytes)} GB`;
-}
-
+const SMALL_CATEGORY_BYTES = 5 * 1024 * 1024;
 const totalStorageGb = 20;
+const totalStorageBytes = totalStorageGb * 1024 * 1024 * 1024;
 const circumference = 2 * Math.PI * 52;
 
 export default function RightPanel({ uploadStatus }) {
   const { t } = useLanguage();
   const [selected, setSelected] = useState(null);
   const [details, setDetails] = useState([]);
-  const [usedGb, setUsedGb] = useState(0);
   const [usedBytes, setUsedBytes] = useState(0);
 
   useEffect(() => {
@@ -73,15 +62,12 @@ export default function RightPanel({ uploadStatus }) {
 
         const detailsList = Object.entries(stats).map(([type, stat]) => {
           const config = storageTypes[type];
-          const gb = formatGb(stat.size);
-          const displaySize = formatStorage(stat.size);
           return {
             type,
             label: config.label,
             count: stat.count,
             size: formatBytes(stat.size),
-            gb,
-            displaySize,
+            bytes: stat.size,
             icon: config.icon,
             color: config.color,
             hex: config.hex,
@@ -91,7 +77,6 @@ export default function RightPanel({ uploadStatus }) {
         setDetails(detailsList);
         const totalUsed = Object.values(stats).reduce((sum, s) => sum + s.size, 0);
         setUsedBytes(totalUsed);
-        setUsedGb(formatGb(totalUsed));
       } catch (error) {
         console.error("Failed to load storage data:", error);
       }
@@ -101,23 +86,22 @@ export default function RightPanel({ uploadStatus }) {
   }, []);
 
   let offset = 0;
-  const freeGb = Math.max(0, totalStorageGb - usedGb);
-  const totalGb = totalStorageGb;
   const centerLabel = selected ? t("type_" + selected.type) : t("usedLabel");
-  const centerValue = selected ? selected.displaySize : formatStorage(usedBytes);
+  const centerValue = selected ? formatBytes(selected.bytes) : formatBytes(usedBytes);
 
   return (
     <aside className="flex w-full shrink-0 flex-col gap-4 overflow-hidden rounded-2xl bg-white p-4 shadow-sm sm:p-5 lg:h-full lg:w-[28rem] lg:rounded-none lg:py-5 lg:pl-6 lg:pr-8">
       <div>
         <h2 className="mb-3 text-base font-semibold text-slate-800">{t("storage")}</h2>
         <div className="relative mx-auto flex h-40 w-40 items-center justify-center sm:h-48 sm:w-48 lg:h-56 lg:w-56">
-          <svg viewBox="0 0 120 120" className="h-full w-full -rotate-90">
-            <circle cx="60" cy="60" r="52" fill="none" stroke="#eef0f4" strokeWidth="10" />
-            {details.filter(d => d.gb > 0).map((detail) => {
-              const { label, gb, hex } = detail;
-              const fraction = gb / totalGb;
+          <svg viewBox="0 0 120 120" className="h-full w-full -rotate-90 drop-shadow-sm">
+            <circle cx="60" cy="60" r="52" fill="none" stroke="#f1f3f8" strokeWidth="13" />
+            {details.filter((d) => d.bytes > 0).map((detail) => {
+              const { label, bytes, hex } = detail;
+              const fraction = bytes / totalStorageBytes;
               let dash = fraction * circumference;
-              const minDash = 5;
+              // Categories under 5 MB get a thinner sliver than the regular minimum
+              const minDash = bytes < SMALL_CATEGORY_BYTES ? 1.5 : 5;
               if (dash > 0 && dash < minDash) dash = minDash;
               const isSelected = selected?.label === label;
               const circle = (
@@ -128,12 +112,12 @@ export default function RightPanel({ uploadStatus }) {
                   r="52"
                   fill="none"
                   stroke={hex}
-                  strokeWidth={isSelected ? 13 : 10}
+                  strokeWidth={isSelected ? 16 : 13}
                   strokeOpacity={selected && !isSelected ? 0.35 : 1}
                   strokeLinecap="butt"
-                  strokeDasharray={`${Math.max(dash - 2, 0)} ${circumference - dash + 2}`}
+                  strokeDasharray={`${dash + 0.4} ${circumference - dash - 0.4}`}
                   strokeDashoffset={-offset}
-                  className="cursor-pointer transition-all"
+                  className="cursor-pointer transition-all duration-200 hover:opacity-80"
                   onClick={() => setSelected(isSelected ? null : detail)}
                 />
               );
@@ -149,8 +133,8 @@ export default function RightPanel({ uploadStatus }) {
           </div>
         </div>
         <p className="mt-3 text-center text-xs text-slate-400">
-          <span className="font-medium text-slate-600">{formatStorage(usedBytes)}</span> {t("usedOf")}{" "}
-          <span className="font-medium text-slate-600">{totalGb} GB</span> {t("totalWord")}
+          <span className="font-medium text-slate-600">{formatBytes(usedBytes)}</span> {t("usedOf")}{" "}
+          <span className="font-medium text-slate-600">{totalStorageGb} GB</span> {t("totalWord")}
         </p>
       </div>
 
