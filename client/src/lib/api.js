@@ -41,6 +41,14 @@ export async function getDownloadUrl(key) {
   return response.json();
 }
 
+export async function getTextContent(key) {
+  const response = await fetch(`${API_BASE_URL}/api/files/${encodeURIComponent(key)}/content`, {
+    headers: authHeaders(),
+  });
+  if (!response.ok) throw new Error("Failed to read file");
+  return response.json();
+}
+
 export async function deleteFile(key) {
   const response = await fetch(`${API_BASE_URL}/api/files/${encodeURIComponent(key)}`, {
     method: "DELETE",

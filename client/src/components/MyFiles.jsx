@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Folder, Plus, X, MoreHorizontal, Trash2, FileText, Video, Image as ImageIcon, Music, FileCode } from "lucide-react";
-import { listFiles, deleteFile } from "../lib/api";
+import { listFiles, deleteFile, getTextContent, getDownloadUrl } from "../lib/api";
 import { useLanguage } from "../lib/i18n";
 
 const colorOptions = [
@@ -56,6 +56,10 @@ function formatDate(dateString, locale, unknown) {
   });
 }
 
+const isTextFile = (name) => /\.txt$/i.test(name);
+const isPdfFile = (name) => /\.pdf$/i.test(name);
+const isViewable = (name) => isTextFile(name) || isPdfFile(name);
+
 function displayName(key) {
   return key.replace(/^[0-9a-f-]{36}-/i, "");
 }
@@ -71,6 +75,30 @@ export default function MyFiles({ onFolderOpen }) {
   const [openFileMenu, setOpenFileMenu] = useState(null);
   const [selectedFolder, setSelectedFolder] = useState(null);
   const [isLoadingFiles, setIsLoadingFiles] = useState(false);
+  const [viewer, setViewer] = useState(null);
+
+  const openTextFile = async (file) => {
+    if (!isViewable(file.name)) return;
+    setViewer({ name: file.name, status: "loading" });
+    try {
+      if (isPdfFile(file.name)) {
+        const { url } = await getDownloadUrl(file.key);
+        setViewer({ name: file.name, status: "ready", pdfUrl: url });
+        return;
+      }
+      const { text, truncated } = await getTextContent(file.key);
+      setViewer({ name: file.name, status: "ready", text, truncated });
+    } catch {
+      setViewer({ name: file.name, status: "error" });
+    }
+  };
+
+  useEffect(() => {
+    if (!viewer) return;
+    const onKey = (e) => e.key === "Escape" && setViewer(null);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [viewer]);
 
   useEffect(() => {
     async function loadFiles() {
@@ -174,7 +202,8 @@ export default function MyFiles({ onFolderOpen }) {
                 return (
                   <div
                     key={file.key}
-                    className="flex items-center justify-between rounded-lg bg-white p-4 shadow-sm"
+                    onClick={() => openTextFile(file)}
+                    className={`flex items-center justify-between rounded-lg bg-white p-4 shadow-sm ${isViewable(file.name) ? "cursor-pointer" : ""}`}
                   >
                     <div className="flex min-w-0 flex-1 items-center gap-3">
                       <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${file.color}`}>
@@ -187,7 +216,10 @@ export default function MyFiles({ onFolderOpen }) {
                     </div>
                     <div className="relative flex shrink-0 ml-2">
                       <button
-                        onClick={() => setOpenFileMenu(openFileMenu === file.key ? null : file.key)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setOpenFileMenu(openFileMenu === file.key ? null : file.key);
+                        }}
                         className="text-slate-400 hover:text-slate-600"
                       >
                         <MoreHorizontal size={18} />
@@ -227,7 +259,11 @@ export default function MyFiles({ onFolderOpen }) {
                   {files.map((file) => {
                     const Icon = file.icon;
                     return (
-                      <tr key={file.key} className="border-t border-slate-100 transition hover:bg-slate-50">
+                      <tr
+                        key={file.key}
+                        onClick={() => openTextFile(file)}
+                        className={`border-t border-slate-100 transition hover:bg-slate-50 ${isViewable(file.name) ? "cursor-pointer" : ""}`}
+                      >
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-3">
                             <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${file.color}`}>
@@ -241,7 +277,10 @@ export default function MyFiles({ onFolderOpen }) {
                         <td className="px-4 py-3">
                           <div className="relative flex justify-end">
                             <button
-                              onClick={() => setOpenFileMenu(openFileMenu === file.key ? null : file.key)}
+                              onClick={(e) => {
+                          e.stopPropagation();
+                          setOpenFileMenu(openFileMenu === file.key ? null : file.key);
+                        }}
                               className="text-slate-400 hover:text-slate-600"
                             >
                               <MoreHorizontal size={18} />
@@ -327,6 +366,41 @@ export default function MyFiles({ onFolderOpen }) {
             <Plus size={18} className="sm:size-[20px]" />
             <span className="text-xs font-medium sm:text-sm">{t("newFolder")}</span>
           </button>
+        </div>
+      )}
+
+      {viewer && (
+        <div
+          className="fixed inset-0 z-30 flex items-center justify-center bg-slate-900/70 p-2 backdrop-blur-sm sm:p-4"
+          onClick={() => setViewer(null)}
+        >
+          <div
+            className={`flex w-full flex-col ${viewer.pdfUrl ? "h-[85vh] max-w-5xl" : "max-h-[85vh] max-w-3xl"} overflow-hidden rounded-2xl bg-white shadow-2xl`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+              <h3 className="truncate text-sm font-semibold text-slate-800">{viewer.name}</h3>
+              <button onClick={() => setViewer(null)} className="ml-3 text-slate-400 hover:text-slate-600">
+                <X size={18} />
+              </button>
+            </div>
+            <div className={`min-h-0 flex-1 ${viewer.pdfUrl ? "" : "overflow-auto p-4"}`}>
+              {viewer.status === "loading" ? (
+                <p className="text-sm text-slate-400">{t("loadingFileContent")}</p>
+              ) : viewer.status === "error" ? (
+                <p className="text-sm text-rose-500">{t("fileContentError")}</p>
+              ) : viewer.pdfUrl ? (
+                <iframe src={viewer.pdfUrl} title={viewer.name} className="h-full w-full border-0" />
+              ) : (
+                <>
+                  <pre className="whitespace-pre-wrap break-words font-mono text-sm text-slate-700">{viewer.text}</pre>
+                  {viewer.truncated && (
+                    <p className="mt-3 text-xs text-slate-400">{t("fileTruncated")}</p>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
         </div>
       )}
 

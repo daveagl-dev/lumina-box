@@ -77,6 +77,30 @@ export async function getDownloadUrl(req, res) {
   }
 }
 
+const MAX_TEXT_BYTES = 1024 * 1024;
+
+export async function getTextContent(req, res) {
+  const { key } = req.params;
+  const fullKey = userPrefix(req.user.id) + key;
+
+  try {
+    const result = await b2Client.send(
+      new GetObjectCommand({
+        Bucket: BUCKET_NAME,
+        Key: fullKey,
+        Range: `bytes=0-${MAX_TEXT_BYTES - 1}`,
+      })
+    );
+    const text = await result.Body.transformToString("utf-8");
+    const total = Number(result.ContentRange?.split("/")[1] ?? result.ContentLength);
+
+    res.json({ text, truncated: total > MAX_TEXT_BYTES });
+  } catch (error) {
+    console.error("Get text content failed:", error);
+    res.status(500).json({ error: "Failed to read file content" });
+  }
+}
+
 export async function deleteFile(req, res) {
   const { key } = req.params;
   const fullKey = userPrefix(req.user.id) + key;
