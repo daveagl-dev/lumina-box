@@ -84,7 +84,6 @@ export const appText = {
     noFilesAvailable: "No files available",
     // recent uploads
     recentUploads: "Files Uploaded Recently",
-    seeAll: "See all",
     // right panel
     storage: "Storage",
     details: "Details",
@@ -211,7 +210,6 @@ export const appText = {
     addToQuickAccess: "Añadir a Acceso rápido ({count}/4)",
     noFilesAvailable: "No hay archivos disponibles",
     recentUploads: "Archivos subidos recientemente",
-    seeAll: "Ver todo",
     storage: "Almacenamiento",
     details: "Detalles",
     usedLabel: "usado",

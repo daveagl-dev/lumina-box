@@ -94,19 +94,20 @@ function App() {
         ) : (
           <>
             <MyFiles onFolderOpen={setIsFolderOpen} />
+            {/* Collapses (grid 1fr -> 0fr) while a folder is open; shrink-0 keeps long lists from squashing it */}
             <div
-              className={`transition-all duration-300 ease-in-out overflow-hidden ${
-                isFolderOpen ? "max-h-0 opacity-0" : "max-h-full opacity-100"
+              className={`grid shrink-0 transition-all duration-300 ease-in-out ${
+                isFolderOpen ? "grid-rows-[0fr] opacity-0" : "grid-rows-[1fr] opacity-100"
               }`}
             >
-              <QuickAccess />
-            </div>
-            <div
-              className={`transition-all duration-300 ease-in-out overflow-hidden ${
-                isFolderOpen ? "max-h-0 opacity-0" : "max-h-full opacity-100"
-              }`}
-            >
-              <RecentUploads />
+              <div className="min-h-0 overflow-hidden">
+                <div className="-m-1 p-1 pb-5 sm:pb-7">
+                  <QuickAccess />
+                </div>
+                <div className="-m-1 p-1">
+                  <RecentUploads />
+                </div>
+              </div>
             </div>
           </>
         )}

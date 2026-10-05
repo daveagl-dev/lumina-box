@@ -37,6 +37,8 @@ function getFileExt(filename) {
   return filename.toLowerCase().split(".").pop().toUpperCase();
 }
 
+const RECENT_LIMIT = 5;
+
 export default function RecentUploads() {
   const { t } = useLanguage();
   const [rows, setRows] = useState([]);
@@ -46,7 +48,10 @@ export default function RecentUploads() {
     async function loadFiles() {
       try {
         const data = await listFiles();
-        const fileRows = data.files.slice(-10).reverse().map((file) => {
+        const fileRows = [...data.files]
+          .sort((a, b) => new Date(b.lastModified) - new Date(a.lastModified))
+          .slice(0, RECENT_LIMIT)
+          .map((file) => {
           const name = displayName(file.key);
           return {
             name,
@@ -74,7 +79,6 @@ export default function RecentUploads() {
         <h2 className="text-base font-semibold text-slate-800">
           {t("recentUploads")}
         </h2>
-        <button className="text-xs font-medium text-coral">{t("seeAll")}</button>
       </div>
 
       {isLoading ? (
